@@ -1,0 +1,13 @@
+transaction -> invoice 
+tách platform fee ra bảng riêng (sản phẩm, mức phí) -> transaction truy cập bảng này 
+sửa user tách ra thành các bảng riêng (admin employee, developer, publisher)
+wallet  
+bảng trung gian giữa payment Method vs user 
+
+
+* CLEAN ARCHITECTURE
+* SOLID 
+* SOME DESIGN PATTERN
+* MYSQL
+* WPF + (ASP.NET MVC)
+* SOME HIGH TECH SKILL 

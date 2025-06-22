@@ -14,38 +14,163 @@
 		<Resource Include="Resources\Images\**\*.gif" />
 	</ItemGroup>
 	<ItemGroup>
-    <Folder Include="Data\" />
-    <Folder Include="Helpers\" />
-    <Folder Include="Models\DAO\" />
-    <Folder Include="Enum\" />
+	  <AvaloniaXaml Remove="Application - Copy\**" />
+	  <AvaloniaXaml Remove="Core - Copy\**" />
+	  <AvaloniaXaml Remove="Core\Enum\**" />
+	  <AvaloniaXaml Remove="Helpers\**" />
+	  <AvaloniaXaml Remove="Infrastructure - Copy\**" />
+	  <AvaloniaXaml Remove="WebUI - Copy\**" />
+	  <AvaloniaXaml Remove="WPFUI - Copy\**" />
+	  <Compile Remove="Application - Copy\**" />
+	  <Compile Remove="Core - Copy\**" />
+	  <Compile Remove="Core\Enum\**" />
+	  <Compile Remove="Helpers\**" />
+	  <Compile Remove="Infrastructure - Copy\**" />
+	  <Compile Remove="Models\**" />
+	  <Compile Remove="WebUI - Copy\**" />
+	  <Compile Remove="WPFUI - Copy\**" />
+	  <EmbeddedResource Remove="Application - Copy\**" />
+	  <EmbeddedResource Remove="Core - Copy\**" />
+	  <EmbeddedResource Remove="Core\Enum\**" />
+	  <EmbeddedResource Remove="Helpers\**" />
+	  <EmbeddedResource Remove="Infrastructure - Copy\**" />
+	  <EmbeddedResource Remove="Models\**" />
+	  <EmbeddedResource Remove="WebUI - Copy\**" />
+	  <EmbeddedResource Remove="WPFUI - Copy\**" />
+	  <None Remove="Application - Copy\**" />
+	  <None Remove="Core - Copy\**" />
+	  <None Remove="Core\Enum\**" />
+	  <None Remove="Helpers\**" />
+	  <None Remove="Infrastructure - Copy\**" />
+	  <None Remove="Models\**" />
+	  <None Remove="WebUI - Copy\**" />
+	  <None Remove="WPFUI - Copy\**" />
+	  <Page Remove="Application - Copy\**" />
+	  <Page Remove="Core - Copy\**" />
+	  <Page Remove="Core\Enum\**" />
+	  <Page Remove="Helpers\**" />
+	  <Page Remove="Infrastructure - Copy\**" />
+	  <Page Remove="Models\**" />
+	  <Page Remove="WebUI - Copy\**" />
+	  <Page Remove="WPFUI - Copy\**" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Remove="WPFUI\Resources\images\icons\buttons\icons8-exit-40.png" />
+	  <None Remove="WPFUI\Resources\images\icons\buttons\icons8-minimize-40.png" />
+	  <None Remove="WPFUI\Resources\images\icons\buttons\icons8-minimize-window-40.png" />
+	  <None Remove="WPFUI\Resources\images\icons\buttons\icons8-search-40.png" />
+	  <None Remove="WPFUI\Resources\images\icons\buttons\icons8-toggle-full-screen-40.png" />
+	  <None Remove="WPFUI\Resources\images\icons\other_icons\best-selling.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\other_icons\LN.webp" />
+	  <None Remove="WPFUI\Resources\images\icons\other_icons\Manga-list.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\other_icons\Manga.webp" />
+	  <None Remove="WPFUI\Resources\images\icons\other_icons\new-book.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\other_icons\sach-thieu-nhi.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\other_icons\search.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\other_icons\VVP.webp" />
+	  <None Remove="WPFUI\Resources\images\icons\other_icons\yang-icon-1.webp" />
+	  <None Remove="WPFUI\Resources\images\icons\other_icons\yang-icon-2.webp" />
+	  <None Remove="WPFUI\Resources\images\icons\other_icons\yang-icon-3.webp" />
+	  <None Remove="WPFUI\Resources\images\icons\other_icons\yang-icon-4.webp" />
+	  <None Remove="WPFUI\Resources\images\icons\other_icons\yang-icon-5.webp" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\ahamove_logo3.png" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\icon_snappy1.png" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\ico_cashondelivery.svg" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\ico_momopay.svg" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\ico_vnpayatm.svg" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\internet_banking.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\JCB.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\Logo_ninjavan.png" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\mastercard.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\momopay.png" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\pay_4.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\pay_5.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\pay_7.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\pay_8.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\shopeepay_logo.png" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\vnpay_logo.png" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\vnpost1.png" />
+	  <None Remove="WPFUI\Resources\images\icons\payment_methods\ZaloPay-logo-130x83.png" />
+	  <None Remove="WPFUI\Resources\images\icons\services\icon-sv1.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\services\icon-sv2.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\services\icon-sv3.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\services\icon-sv4.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\social_media\facebook.svg" />
+	  <None Remove="WPFUI\Resources\images\icons\social_media\icons8-tiktok.svg" />
+	  <None Remove="WPFUI\Resources\images\icons\social_media\icons8-twitterx.svg" />
+	  <None Remove="WPFUI\Resources\images\icons\social_media\icons8-youtube.svg" />
+	  <None Remove="WPFUI\Resources\images\icons\social_media\icons8-zalo.svg" />
+	  <None Remove="WPFUI\Resources\images\icons\social_media\moon-regular.svg" />
+	  <None Remove="WPFUI\Resources\images\icons\social_media\sun-regular.svg" />
+	  <None Remove="WPFUI\Resources\images\icons\web_logo\32-daily-ui-logo-large.png" />
+	  <None Remove="WPFUI\Resources\images\icons\web_logo\bct_img.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\web_logo\favicon.ico" />
+	  <None Remove="WPFUI\Resources\images\icons\web_logo\light-novel-world.png" />
+	  <None Remove="WPFUI\Resources\images\icons\web_logo\main-logo.jpg" />
+	  <None Remove="WPFUI\Resources\images\icons\web_logo\manga-icon-backtotop_550x700_1.png" />
+	  <None Remove="WPFUI\Resources\images\icons\web_logo\yang-icon-2.webp" />
+	  <None Remove="WPFUI\Resources\images\icons\web_logo\yang-icon-3.webp" />
+	  <None Remove="WPFUI\Resources\images\icons\web_logo\yang-icon-4.webp" />
+	  <None Remove="WPFUI\Resources\images\icons\web_logo\yang-icon-5.webp" />
+	</ItemGroup>
+	<ItemGroup>
+    <Folder Include="Application\Services\" />
+    <Folder Include="Core\ValueObjects\" />
+    <Folder Include="Others\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
   </ItemGroup>
-  <ItemGroup>
-	  <PackageReference Include="Avalonia" Version="11.3.0" />
-	  <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.0-beta.133" />
-	  <PackageReference Include="Google.Protobuf" Version="3.31.0-rc2" />
+	<ItemGroup>
+		<None Update="..\..\..\Infrastructure\Persistence\appsettings.Development.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Avalonia" Version="11.3.1" />
+	  <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.1" />
+	  <PackageReference Include="Dapper" Version="2.1.66" />
+	  <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
+	  <PackageReference Include="Google.Protobuf" Version="3.31.1" />
 	  <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
 	  <PackageReference Include="K4os.Compression.LZ4" Version="1.3.8" />
 	  <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.3.8" />
 	  <PackageReference Include="K4os.Hash.xxHash" Version="1.0.8" />
-	  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.0-preview.4.25258.110" />
-	  <PackageReference Include="Microsoft.Windows.Compatibility" Version="10.0.0-preview.4.25258.110" />
+	  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.0-preview.5.25277.114" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0-preview.5.25277.114" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0-preview.5.25277.114" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
+	  <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.0-preview.5.25277.114" />
+	  <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0-preview.5.25277.114" />
+	  <PackageReference Include="Microsoft.Windows.Compatibility" Version="10.0.0-preview.5.25277.114" />
 	  <PackageReference Include="MySql.Data" Version="9.3.0" />
 	  <PackageReference Include="System.Buffers" Version="4.6.1" />
-	  <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0-preview.4.25258.110" />
-	  <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="10.0.0-preview.4.25258.110" />
-	  <PackageReference Include="System.Drawing.Common" Version="10.0.0-preview.4.25258.110" />
-	  <PackageReference Include="System.IO.Pipelines" Version="10.0.0-preview.4.25258.110" />
+	  <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0-preview.5.25277.114" />
+	  <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="10.0.0-preview.5.25277.114" />
+	  <PackageReference Include="System.Drawing.Common" Version="10.0.0-preview.5.25277.114" />
+	  <PackageReference Include="System.IO.Pipelines" Version="10.0.0-preview.5.25277.114" />
 	  <PackageReference Include="System.Memory" Version="4.6.3" />
 	  <PackageReference Include="System.Numerics.Vectors" Version="4.6.1" />
 	  <PackageReference Include="System.Runtime" Version="4.3.1" />
 	  <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
 	  <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
 	  <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
-	  <PackageReference Include="System.Windows.Extensions" Version="10.0.0-preview.4.25258.110" />
-	  <PackageReference Include="WPF-UI" Version="4.0.2" />
+	  <PackageReference Include="System.Windows.Extensions" Version="10.0.0-preview.5.25277.114" />
+	  <PackageReference Include="WPF-UI" Version="4.0.3" />
 	  <PackageReference Include="ZstdSharp.Port" Version="0.8.5" />
+  </ItemGroup>
+  <ItemGroup>
+		<Resource Include="WPFUI\Resources\images\**\*.jpg">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="WPFUI\Resources\images\**\*.png">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="WPFUI\Resources\images\**\*.ico">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Resource>
+	  <CodeAnalysisDictionary Include="WPFUI\Resources\images\icons\other_icons\icons8-minimize-40.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </CodeAnalysisDictionary>
   </ItemGroup>
 </Project>
