@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using TLGames.Core.Interfaces;
+using TLGames.Core.Interfaces.IData;
 using TLGames.Infrastructure.Configuration;
 
 namespace TLGames.Infrastructure.Services
@@ -48,7 +48,7 @@ namespace TLGames.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[GetValidColumns] Error for table '{tableName}': {ex.Message}");
+                Console.WriteLine($"[GetValidColumns] Error for table '{(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}': {ex.Message}");
                 return new();
             }
         }

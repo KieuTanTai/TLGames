@@ -1,6 +1,6 @@
 ﻿using TLGames.Applications.Services;
 using TLGames.Core.Entities;
-using TLGames.Core.Interfaces;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
@@ -11,7 +11,7 @@ namespace TLGames.Infrastructure.Data
 
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {TableName} (user_id) 
+            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (user_id) 
                         VALUES(@UserId); SELECT LAST_INSERT_ID();";
         }
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using TLGames.Core.Interfaces;
+using TLGames.Core.Interfaces.IData;
 using TLGames.Infrastructure.Persistence;
 using TLGames.Infrastructure.Persistence.Repositories;
 using TLGames.Infrastructure.Services;

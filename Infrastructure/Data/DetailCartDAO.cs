@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,42 +6,44 @@ using System.Threading.Tasks;
 using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
-using TLGames.Core.Interfaces;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class DetailCartDAO(IDbConnectionFactory connectionFactory) : BaseDAO<DetailCartModel>(connectionFactory), IGetAllByIdAsync<DetailCartModel>, 
+    public record DetailCartItemIds(string CartId, string ProductId);
+    internal class DetailCartDAO(IDbConnectionFactory connectionFactory,
+                                        string tableName,
+                                        string columnIdName,
+                                        string secondColumnIdName) : BaseDAO<DetailCartModel>(connectionFactory, tableName, columnIdName, secondColumnIdName), IGetAllByIdAsync<DetailCartModel>,
                                     IGetSingleByIdsAsync<DetailCartModel>, IGetDataByDateTime<DetailCartModel>, IDeleteByIdsAsync
     {
-        protected override string TableName => "detail_carts";
+        //protected override string TableName => "detail_carts";
+        //protected override string ColumnIdName => "cart_id";
+        //private static string SecondColumnIdName => "product_id";
 
-        protected override string ColumnIdName => "cart_id";
-        private static string SecondColumnIdName => "product_id";
-        private readonly IStringConverter _converter = App.SystemServices.GetService<IStringConverter>();
-        public record DetailCartItemIds(string CartId, string ProductId);
 
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {TableName} ({ColumnIdName}, {SecondColumnIdName}, add_date, price, type) 
+            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} ({(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}, {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))}, add_date, price, type) 
                         VALUES(@{_converter.SnakeCaseToPascalCase(ColumnIdName)}, @{_converter.SnakeCaseToPascalCase(ColumnIdName)}, @AddDate, @Price, @Type); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {TableName}
+            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET add_date = @AddDate, price = @Price, type = @Type
-                        WHERE {ColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}
-                        AND {SecondColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}
+                        AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetSingleDataString()
         {
-            return $"SELECT * FROM {TableName} WHERE {ColumnIdName} = {_converter.SnakeCaseToPascalCase(ColumnIdName)} AND {SecondColumnIdName} = {_converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = {_converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = {_converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         public string GetDeleteQuery()
         {
-            return $"DELETE FROM {TableName} WHERE {ColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)} AND {SecondColumnIdName} = @{_converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"DELETE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         public async Task<List<DetailCartModel>> GetAllByIdAsync(string id, string colIdName)
@@ -113,35 +114,35 @@ namespace TLGames.Infrastructure.Data
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE Month({colName}) = @Input";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Month({colName}) = @Input";
         }
 
         public string GetByYear(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE Year({colName}) = @Input";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Year({colName}) = @Input";
         }
 
         public string GetByDateTime(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
         }
 
         public string GetByDateTimeRange(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public string GetByMonthAndYear(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
         }
 
         public async Task<List<DetailCartModel>> GetAllByTimeRange<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum

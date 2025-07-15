@@ -1,33 +1,30 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Data;
-using System;
-using System.Threading.Tasks;
+﻿using System;
 using TLGames.Applications.Services;
 using TLGames.Core.Entities;
-using TLGames.Core.Interfaces;
-using TLGames.Infrastructure.Services;
-using static Dapper.SqlMapper;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class CartDAO(IDbConnectionFactory connectionFactory) : BaseDAO<CartModel>(connectionFactory)
+    internal class CartDAO(IDbConnectionFactory connectionFactory,
+                                        string tableName,
+                                        string columnIdName) : BaseDAO<CartModel>(connectionFactory, tableName, columnIdName)
     {
-        protected override string TableName => "carts";
-        protected override string ColumnIdName => "cart_id";
-        private readonly IStringConverter _converter = App.SystemServices.GetService<IStringConverter>();
+        //protected override string TableName => "carts";
+        //protected override string ColumnIdName => "cart_id";
+
 
         public record CartItemId(string CartId, string CustomerId);
 
         protected override string GetInsertQuery()
         {
-            return $"INSERT INTO {TableName}(customer_id, total_price) VALUES(@CustomerId, @TotalPrice); SELECT LAST_INSERT_ID();";
+            return $"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}(customer_id, total_price) VALUES(@CustomerId, @TotalPrice); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {TableName} 
+            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} 
                         SET total_price = @TotalPrice  
-                        WHERE {ColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         protected override string DeleteByIdQuery(string colIdName)

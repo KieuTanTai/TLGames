@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
-using TLGames.Core.Interfaces;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Services
 {
-    internal class StringChecker : IStringChecker
+    public class StringChecker : IStringChecker
     {
         public bool IsSnakeCase(string str)
         {
@@ -43,6 +43,22 @@ namespace TLGames.Infrastructure.Services
                 return false;
             }
             return Regex.IsMatch(str, @"^[A-Z]+(_[A-Z0-9]+)*$");
+        }
+
+        public bool ContainsProblematicDbChars(string str)
+        {
+            if (string.IsNullOrEmpty(str))
+                return false;
+            string problematicCharsPattern = @"['"";`#&\|\*\/\\<>=%_!\x00-\x1F\x7F]";
+            return Regex.IsMatch(str, problematicCharsPattern);
+        }
+
+        public bool IsSafeDbString(string str)
+        {
+            if (string.IsNullOrEmpty(str))
+                return true;
+            string safePattern = @"^[a-zA-Z0-9\s_-]*$";
+            return Regex.IsMatch(str, safePattern);
         }
     }
 }

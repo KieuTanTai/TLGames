@@ -1,44 +1,43 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using System;
 using TLGames.Applications.Services;
 using TLGames.Core.Entities;
-using TLGames.Core.Interfaces;
-using Dapper;
 using TLGames.Core.Enums;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class UserPaymentMethodDAO(IDbConnectionFactory connectionFactory) : BaseDAO<UserPaymentMethodModel>(connectionFactory), ISoftDeleteAsync<UserPaymentMethodModel>, 
+    internal class UserPaymentMethodDAO(IDbConnectionFactory connectionFactory) : BaseDAO<UserPaymentMethodModel>(connectionFactory), ISoftDeleteAsync<UserPaymentMethodModel>,
                                         IGetAllByIdAsync<UserPaymentMethodModel>, IGetRelativeAsync<UserPaymentMethodModel>, IGetDataByEnum<UserPaymentMethodModel>, IGetDataByDateTime<UserPaymentMethodModel>
     {
         protected override string TableName => "user_payment_methods";
 
         protected override string ColumnIdName => "user_payment_method_id";
-        private readonly IStringConverter _converter = App.SystemServices.GetService<IStringConverter>();
+
 
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {TableName} (payment_method_type, bank_id, user_id, display_name, last_four_digit, expiry_year, expiry_month, token, added_date, last_updated_date, status) 
+            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (payment_method_type, bank_id, user_id, display_name, last_four_digit, expiry_year, expiry_month, token, added_date, last_updated_date, status) 
                         VALUES(@PaymentmethodType, @BankId, @UserId, @DisplayName, @LastFourDigit, @ExpiryYear, @ExpiryMonth, @Token, @AddedDate, @LastUpdatedDate, @Status); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {TableName}
+            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET payment_method_type = @PaymentMethodtype, bank_id = @BankId, display_name = @DisplayName,
                         last_four_digit = @LastFourDigit, expiry_year = @ExpiryYear, expiry_month = @ExpiryMonth, token = @Token
                         added_date = @AddedDate, last_updated_date = @LastUpDatedDate, status = @Status
-                        WHERE {ColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetQueryDataString(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
         }
 
         protected override string DeleteByIdQuery(string colIdName)
@@ -111,35 +110,35 @@ namespace TLGames.Infrastructure.Data
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE Month({colName}) = @Input";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Month({colName}) = @Input";
         }
 
         public string GetByYear(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE Year({colName}) = @Input";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Year({colName}) = @Input";
         }
 
         public string GetByDateTime(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
         }
 
         public string GetByDateTimeRange(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public string GetByMonthAndYear(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
         }
 
         public async Task<List<UserPaymentMethodModel>> GetAllByTimeRange<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum

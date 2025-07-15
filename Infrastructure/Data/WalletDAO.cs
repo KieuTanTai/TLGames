@@ -1,14 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using System;
 using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
-using TLGames.Core.Interfaces;
-using TLGames.Infrastructure.Services;
-using Dapper;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
@@ -16,20 +14,19 @@ namespace TLGames.Infrastructure.Data
     {
         protected override string TableName => "wallets";
         protected override string ColumnIdName => "wallet_id";
-        private readonly IStringConverter _converter = App.SystemServices.GetService<IStringConverter>();
 
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {TableName} (user_id, balance, currency, last_update_balance_date) 
+            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (user_id, balance, currency, last_update_balance_date) 
                         VALUES(@UserId, @Balance, @Currency, @LastUpdateBalanceDate); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {TableName}
+            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET balance = @Balance, currency = @Currency, 
                         last_update_balance_date = @LastUpdateBalanceDate
-                        WHERE {ColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         protected override string DeleteByIdQuery(string colIdName)
@@ -42,35 +39,35 @@ namespace TLGames.Infrastructure.Data
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE Month({colName}) = @Input";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Month({colName}) = @Input";
         }
 
         public string GetByYear(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE Year({colName}) = @Input";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Year({colName}) = @Input";
         }
 
         public string GetByDateTime(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
         }
 
         public string GetByDateTimeRange(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public string GetByMonthAndYear(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
         }
 
         public async Task<List<WalletModel>> GetAllByTimeRange<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum

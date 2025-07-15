@@ -1,37 +1,34 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System;
-using System.IO.IsolatedStorage;
 using System.Threading.Tasks;
 using TLGames.Applications.Services;
 using TLGames.Core.Entities;
-using TLGames.Core.Interfaces;
-using TLGames.Infrastructure.Services;
-using Dapper;
 using TLGames.Core.Enums;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class InvoiceDAO(IDbConnectionFactory connectionFactory) : BaseDAO<InvoiceModel>(connectionFactory), ISoftDeleteAsync<InvoiceModel>, IGetAllByIdAsync<InvoiceModel>,
+    internal class InvoiceDAO(IDbConnectionFactory connectionFactory,
+                                        string tableName,
+                                        string columnIdName) : BaseDAO<InvoiceModel>(connectionFactory, tableName, columnIdName), ISoftDeleteAsync<InvoiceModel>, IGetAllByIdAsync<InvoiceModel>,
                                 IGetDataByEnum<InvoiceModel>, IGetDataByDateTime<InvoiceModel>
     {
-        protected override string TableName => "invoices";
-
-        protected override string ColumnIdName => "invoice_id";
-        private readonly IStringConverter _converter = App.SystemServices.GetService<IStringConverter>();
+        //protected override string TableName => "invoices";
+        //protected override string ColumnIdName => "invoice_id";
 
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {TableName} (customer_id, payment_method_id, total_price, invoice_date, status) 
+            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (customer_id, payment_method_id, total_price, invoice_date, status) 
                         VALUES(@CustomerId, @PaymentMethodId, @TotalPrice, @InvoiceDate, @Status); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {TableName}
+            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET total_price = @TotalPrice, invoice_date = @InvoiceDate, status = @Status
-                        WHERE {ColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         protected override string DeleteByIdQuery(string colIdName)
@@ -86,35 +83,35 @@ namespace TLGames.Infrastructure.Data
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE Month({colName}) = @Input";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Month({colName}) = @Input";
         }
 
         public string GetByYear(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE Year({colName}) = @Input";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Year({colName}) = @Input";
         }
 
         public string GetByDateTime(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
         }
 
         public string GetByDateTimeRange(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public string GetByMonthAndYear(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
         }
 
         public async Task<List<InvoiceModel>> GetAllByTimeRange<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum

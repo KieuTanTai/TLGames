@@ -1,10 +1,10 @@
 ﻿using Dapper;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using TLGames.Core.Interfaces;
+using TLGames.Application.Services;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Configuration;
 public class SnakeCaseTypeMapperConfiguration<T> : FallbackTypeMapper
@@ -19,7 +19,7 @@ public class SnakeCaseTypeMapperConfiguration<T> : FallbackTypeMapper
     private static PropertyInfo SelectProperty(Type type, string columnName)
     {
         // Convert snake_case column to PascalCase property
-        IStringConverter converter = App.SystemServices.GetService<IStringConverter>();
+        IStringConverter converter = GetProviderService.SystemServices.GetService<IStringConverter>();
         string pascal = converter.SnakeCaseToPascalCase(columnName);
         return type.GetProperties().FirstOrDefault(p =>
             string.Equals(p.Name, pascal, StringComparison.OrdinalIgnoreCase));

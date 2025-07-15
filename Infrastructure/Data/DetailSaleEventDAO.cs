@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,38 +6,38 @@ using System.Threading.Tasks;
 using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
-using TLGames.Core.Interfaces;
-using static TLGames.Infrastructure.Data.DetailInvoiceDAO;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class DetailSaleEventDAO(IDbConnectionFactory connectionFactory) : BaseDAO<DetailSaleEventModel>(connectionFactory), IGetAllByIdAsync<DetailSaleEventModel>, 
+    public record DetailSaleEventItemIds(string SaleEventId, string ProductId);
+    internal class DetailSaleEventDAO(IDbConnectionFactory connectionFactory,
+                                        string tableName,
+                                        string columnIdName,
+                                        string secondColumnIdName) : BaseDAO<DetailSaleEventModel>(connectionFactory, tableName, columnIdName, secondColumnIdName), IGetAllByIdAsync<DetailSaleEventModel>,
                                         IGetSingleByIdsAsync<DetailSaleEventModel>, IGetDataByEnum<DetailSaleEventModel>
     {
-        protected override string TableName => "detail_sale_events";
-
-        protected override string ColumnIdName => "sale_event_id";
-        private static string SecondColumnIdName => "product_id";
-        private readonly IStringConverter _converter = App.SystemServices.GetService<IStringConverter>();
-        public record DetailSaleEventItemIds(string SaleEventId, string ProductId);
+        //protected override string TableName => "detail_sale_events";
+        //protected override string ColumnIdName => "sale_event_id";
+        //private static string SecondColumnIdName => "product_id";
 
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {TableName} ({ColumnIdName}, {SecondColumnIdName}, discount_percent, discount_amount, max_discount_price, min_price_to_use) 
+            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} ({(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}, {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))}, discount_percent, discount_amount, max_discount_price, min_price_to_use) 
                         VALUES(@{_converter.SnakeCaseToPascalCase(ColumnIdName)}, @{_converter.SnakeCaseToPascalCase(ColumnIdName)}, @DiscountPercent, @DiscountAmount, @MaxDiscountPrice, @MinPriceToUse); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {TableName}
+            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET discount_percent = @DiscountPercent, 
                         discount_amount = @DiscountAmount, max_discount_price = @MaxDiscountPrice, min_price_to_use = @MinPriceToUse
-                        WHERE {ColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)} 
-                        AND {SecondColumnIdName} = @{_converter.SnakeCaseToPascalCase(SecondColumnIdName )}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)} 
+                        AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
         public string GetSingleDataString()
         {
-            return $"SELECT * FROM {TableName} WHERE {ColumnIdName} = {_converter.SnakeCaseToPascalCase(ColumnIdName)} AND {SecondColumnIdName} = {_converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = {_converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = {_converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         protected override string DeleteByIdQuery(string colIdName)

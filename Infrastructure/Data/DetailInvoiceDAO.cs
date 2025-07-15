@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,38 +6,40 @@ using System.Threading.Tasks;
 using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
-using TLGames.Core.Interfaces;
-using static TLGames.Infrastructure.Data.ConversationPaticipantDAO;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class DetailInvoiceDAO(IDbConnectionFactory connectionFactory) : BaseDAO<DetailInvoiceModel>(connectionFactory), ISoftDeleteAsync<DetailInvoiceModel>, 
+    public record DetailInvoiceItemIds(string InvoiceId, string ProductId);
+
+    internal class DetailInvoiceDAO(IDbConnectionFactory connectionFactory,
+                                        string tableName,
+                                        string columnIdName,
+                                        string secondColumnIdName) : BaseDAO<DetailInvoiceModel>(connectionFactory, tableName, columnIdName, secondColumnIdName), ISoftDeleteAsync<DetailInvoiceModel>,
                                     IGetSingleByIdsAsync<DetailInvoiceModel>, IGetAllByIdAsync<DetailInvoiceModel>, IGetDataByEnum<DetailInvoiceModel>
     {
-        protected override string TableName => "detail_invoices";
+        //protected override string TableName => "detail_invoices";
 
-        protected override string ColumnIdName => "invoice_id";
-        private static string SecondColumnIdName => "product_id";
-        private readonly IStringConverter _converter = App.SystemServices.GetService<IStringConverter>();
-        public record DetailInvoiceItemIds(string InvoiceId, string ProductId);
+        //protected override string ColumnIdName => "invoice_id";
+        //private static string SecondColumnIdName => "product_id";
 
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {TableName} ({ColumnIdName}, {SecondColumnIdName}, quantity, price, status) 
+            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} ({(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}, {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))}, quantity, price, status) 
                         VALUES(@{_converter.SnakeCaseToPascalCase(ColumnIdName)}, @{_converter.SnakeCaseToPascalCase(ColumnIdName)}, @Quantity, @Price, @Status); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {TableName}
+            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET status = @Status
-                        WHERE {ColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)} 
-                        AND {SecondColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)} 
+                        AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetSingleDataString()
         {
-            return $"SELECT * FROM {TableName} WHERE {ColumnIdName} = {_converter.SnakeCaseToPascalCase(ColumnIdName)} AND {SecondColumnIdName} = {_converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = {_converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = {_converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         protected override string DeleteByIdQuery(string colIdName)

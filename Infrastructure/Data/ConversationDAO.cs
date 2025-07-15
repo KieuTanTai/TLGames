@@ -1,38 +1,37 @@
 ﻿using Dapper;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using TLGames.Applications.Services;
 using TLGames.Core.Entities;
-using TLGames.Core.Interfaces;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class ConversationDAO(IDbConnectionFactory connectionFactory) : BaseDAO<ConversationModel>(connectionFactory), IGetSingleByIdsAsync<ConversationModel>, IGetAllByIdAsync<ConversationModel>
+    public record ConversationItemIds(string ConversationId, string FirstUserId, string SecondUserId);
+    internal class ConversationDAO(IDbConnectionFactory connectionFactory,
+                                        string tableName,
+                                        string columnIdName) : BaseDAO<ConversationModel>(connectionFactory, tableName, columnIdName), IGetSingleByIdsAsync<ConversationModel>, IGetAllByIdAsync<ConversationModel>
     {
-        protected override string TableName => "conversations";
-        protected override string ColumnIdName => "conversation_id";
-        private readonly IStringConverter _converter = App.SystemServices.GetService<IStringConverter>();
-
-        public record ConversationItemIds(string ConversationId, string FirstUserId, string SecondUserId);
+        //protected override string TableName => "conversations";
+        //protected override string ColumnIdName => "conversation_id";
 
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {TableName}(first_user_id, second_user_id, start_time, last_message_time, status) 
+            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}(first_user_id, second_user_id, start_time, last_message_time, status) 
                         VALUES (@FirstUserId, @SecondUserId, StartTime, LastMessageTime, Status)";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE FROM {TableName}
+            return $@"UPDATE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET start_time=@StartTime, last_message_time=@LastMessageTime, status=@Status
-                        WHERE {ColumnIdName}=@{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}=@{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
         public string GetSingleDataString()
         {
-            return $@"SELECT * FROM {TableName} WHERE {ColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}
+            return $@"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}
                         AND first_user_id = @FirstUserId, second_user_id = @SecondUserId";
         }
 

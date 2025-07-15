@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,7 +6,7 @@ using System.Threading.Tasks;
 using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
-using TLGames.Core.Interfaces;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
@@ -16,26 +15,25 @@ namespace TLGames.Infrastructure.Data
     {
         protected override string TableName => "social_media_of_products";
         protected override string ColumnIdName => "social_media_id";
-        private readonly IStringConverter _converter = App.SystemServices.GetService<IStringConverter>();
 
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {TableName} (product_id, social_media_type, account_name, social_media_url) 
+            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (product_id, social_media_type, account_name, social_media_url) 
                         VALUES(@ProductId, @SocialMediaType, @AccountName, @SocialMediaUrl); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {TableName}
+            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET social_media_type = @SocialMediaType, social_media_url = @SocialMedia_Url, account_name = @AccountName
-                        WHERE {ColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetQueryDataString(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
         }
 
         public async Task<List<SocialMediaProductModel>> GetRelativeAsync(string input, string colName)

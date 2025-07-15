@@ -1,5 +1,4 @@
 ﻿using TLGames.Core.Enums;
-using Windows.System.UserProfile;
 
 namespace TLGames.Core.Entities
 {
@@ -7,7 +6,7 @@ namespace TLGames.Core.Entities
     {
         public int NewsCategory { get; private set; }
         public string CategoryName { get; private set; }
-        
+
         public EActiveStatus Status { get; private set; }
 
         public NewsCategoryModel() { }

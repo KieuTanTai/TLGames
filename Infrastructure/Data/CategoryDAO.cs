@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,16 +6,18 @@ using System.Threading.Tasks;
 using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
-using TLGames.Core.Interfaces;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class CategoryDAO(IDbConnectionFactory connectionFactory) : BaseDAO<CategoryModel>(connectionFactory), IGetRelativeAsync<CategoryModel>, 
+    internal class CategoryDAO(IDbConnectionFactory connectionFactory,
+                                        string tableName,
+                                        string columnIdName) : BaseDAO<CategoryModel>(connectionFactory, tableName, columnIdName), IGetRelativeAsync<CategoryModel>,
                                 ISoftDeleteAsync<CategoryModel>, IGetDataByEnum<CategoryModel>
     {
-        protected override string TableName => "categories";
-        protected override string ColumnIdName => "category_id";
-        private readonly IStringConverter _converter = App.SystemServices.GetService<IStringConverter>();
+        //protected override string TableName => "categories";
+        //protected override string ColumnIdName => "category_id";
+
         public async Task<List<CategoryModel>> GetRelativeAsync(string input, string colName)
         {
             try
@@ -47,21 +48,21 @@ namespace TLGames.Infrastructure.Data
 
         protected override string GetInsertQuery()
         {
-            return $"INSERT INTO {TableName}(category_name, status) VALUES (@CategoryName, @Status)";
+            return $"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}(category_name, status) VALUES (@CategoryName, @Status)";
         }
 
         public string GetQueryDataString(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE FROM {TableName} 
+            return $@"UPDATE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} 
                         SET category_name=@CategoryName, status = @Status
-                        WHERE {ColumnIdName}=@{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}=@{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         // search by enum

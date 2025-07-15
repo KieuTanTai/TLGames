@@ -1,1 +1,52 @@
 use TLGames;
+select * from banks;
+-- done 
+INSERT INTO platform_rules(fee, pending_time) 
+VALUES (0.2, 2);
+
+INSERT INTO Banks (bank_name, status) 
+VALUES
+('Ngân hàng TMCP Ngoại thương Việt Nam (Vietcombank)', 'active'),
+('Ngân hàng TMCP Công thương Việt Nam (VietinBank)', 'active'),
+('Ngân hàng TMCP Đầu tư và Phát triển Việt Nam (BIDV)', 'active'),
+('Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam (Agribank)', 'active'),
+('Ngân hàng TMCP Quân Đội (MBBank)', 'active'),
+('Ngân hàng TMCP Kỹ Thương Việt Nam (Techcombank)', 'active'),
+('Ngân hàng TMCP Á Châu (ACB)', 'active'),
+('Ngân hàng TMCP Việt Nam Thịnh Vượng (VPBank)', 'active'),
+('Ngân hàng TMCP Tiên Phong (TPBank)', 'active'),
+('Ngân hàng TMCP Quốc tế Việt Nam (VIB)', 'active'),
+('Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)', 'active'),
+('Ngân hàng TMCP Xuất Nhập Khẩu Việt Nam (Eximbank)', 'active'),
+('Ngân hàng TMCP Hàng Hải Việt Nam (MSB)', 'active'),
+('Ngân hàng TMCP Sài Gòn - Hà Nội (SHB)', 'active'),
+('Ngân hàng TMCP Phát triển TP.HCM (HDBank)', 'active'),
+('Ngân hàng TMCP Đông Nam Á (SeABank)', 'active'),
+('Ngân hàng TMCP Bưu điện Liên Việt (LPBank)', 'active'),
+('Ngân hàng TMCP Bắc Á (Bac A Bank)', 'active'),
+('Ngân hàng TMCP An Bình (ABBANK)', 'active'),
+('Ngân hàng TMCP Việt Á (VietABank)', 'active'),
+('Ngân hàng TMCP Nam Á (Nam A Bank)', 'active'),
+('Ngân hàng TMCP Bản Việt (BVBank)', 'active'),
+('Ngân hàng TMCP Quốc Dân (NCB)', 'active'),
+('Ngân hàng TMCP Bảo Việt (BAOVIET Bank)', 'active'),
+('Ngân hàng TMCP Sài Gòn Công Thương (Saigonbank)', 'active'),
+('Ngân hàng TMCP Đại Chúng Việt Nam (PVcomBank)', 'active'),
+('Ngân hàng TMCP Kiên Long (Kienlongbank)', 'active'),
+('Ngân hàng TMCP Xăng dầu Petrolimex (PG Bank)', 'active'),
+('Ngân hàng TMCP Phương Đông (OCB)', 'active'),
+('Ngân hàng TMCP Việt Nam Thương Tín (Vietbank)', 'active'),
+('Ngân hàng TM TNHH MTV Dầu khí toàn cầu (GPBank)', 'active'),
+('Ngân hàng TM TNHH MTV Đại Dương (OceanBank)', 'active'),
+('Ngân hàng TM TNHH MTV Xây dựng (CBBank)', 'active'),
+('Ngân hàng TNHH MTV HSBC Việt Nam (HSBC)', 'active'),
+('Ngân hàng TNHH MTV Shinhan Việt Nam (Shinhan Bank)', 'active'),
+('Ngân hàng TNHH MTV Standard Chartered Việt Nam (Standard Chartered)', 'active'),
+('Ngân hàng TNHH MTV Public Bank Việt Nam (Public Bank)', 'active'),
+('Ngân hàng TNHH MTV Woori Bank Việt Nam (Woori Bank)', 'active'),
+('Ngân hàng TNHH MTV CIMB Bank Việt Nam (CIMB Bank)', 'active'),
+('Ngân hàng TNHH MTV Hong Leong Việt Nam (Hong Leong Bank)', 'active'),
+('Ngân hàng Hợp tác xã Việt Nam (Co-opBank)', 'active'),
+('Ngân hàng Chính sách xã hội Việt Nam (VBSP)', 'active'),
+('Ngân hàng Phát triển Việt Nam (VDB)', 'active'),
+('Ngân hàng TMCP Sài Gòn (SCB)', 'active');

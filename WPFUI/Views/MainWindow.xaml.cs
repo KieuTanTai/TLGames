@@ -4,7 +4,10 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using TLGames.WPFUI.ViewModels;
 using Wpf.Ui.Controls;
+
+
 namespace TLGames
 {
     /// <summary>  
@@ -12,11 +15,15 @@ namespace TLGames
     /// </summary>  
     public partial class MainWindow : Window
     {
+        private MainWindowViewModel _viewModel;
         public MainWindow()
         {
             InitializeComponent();
-            AddEventForButtons();
+
+            _viewModel = new MainWindowViewModel();
+            this.DataContext = _viewModel;
             SetDefaultForm();
+            AddEventForButtons();
         }
 
         // NOTE: FOR INIT  
@@ -48,7 +55,7 @@ namespace TLGames
             }
         }
 
-        public static void ResizeFormFunctionImages(List<System.Windows.Controls.Image> images, int width, int height)
+        public void ResizeFormFunctionImages(List<System.Windows.Controls.Image> images, int width, int height)
         {
             foreach (System.Windows.Controls.Image image in images)
             {
@@ -56,7 +63,6 @@ namespace TLGames
                 image.Width = width;
             }
         }
-
         // NOTE: FOR LOGICS  
 
         //NOTE: FOR VALIDATE  
@@ -72,7 +78,7 @@ namespace TLGames
 
         public void CExitFormContainer_MouseLeftButtonDown(object sender, EventArgs args)
         {
-            Application.Current.Shutdown();
+            System.Windows.Application.Current.Shutdown();
         }
 
         public void CMinimizeContainer_MouseLeftButtonDown(object sender, EventArgs args)
@@ -86,12 +92,14 @@ namespace TLGames
             {
                 this.WindowState = WindowState.Normal;
                 GHeaderForm.Margin = new Thickness(0, 0, 0, 0);
+                GMainContainer.Margin = new Thickness(0, 0, 0, 0);
             }
             else
             {
                 this.WindowState = WindowState.Maximized;
                 this.WindowStyle = WindowStyle.None;
-                GHeaderForm.Margin = new Thickness(0, 6, 6, 0);
+                GHeaderForm.Margin = new Thickness(0, 10, 10, 0);
+                GMainContainer.Margin = new Thickness(10);
             }
         }
 

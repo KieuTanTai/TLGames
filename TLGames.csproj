@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
@@ -114,7 +114,15 @@
 	  <None Remove="WPFUI\Resources\images\icons\web_logo\yang-icon-5.webp" />
 	</ItemGroup>
 	<ItemGroup>
-    <Folder Include="Application\Services\" />
+    <Folder Include="Application\Services\Developer\" />
+    <Folder Include="Application\Services\Publisher\" />
+    <Folder Include="Application\Services\Product\Description\Image\" />
+    <Folder Include="Application\Services\Product\Image\" />
+    <Folder Include="Application\Services\Product\Developer\" />
+    <Folder Include="Application\Services\Product\Publisher\" />
+    <Folder Include="Application\Services\Product\SocialMedia\" />
+    <Folder Include="Application\Services\Product\SystemRequirement\" />
+    <Folder Include="Application\Services\Product\Version\" />
     <Folder Include="Core\ValueObjects\" />
     <Folder Include="Others\" />
   </ItemGroup>

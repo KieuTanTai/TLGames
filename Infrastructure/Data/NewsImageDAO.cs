@@ -1,13 +1,11 @@
 ﻿using Dapper;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using TLGames.Applications.Services;
 using TLGames.Core.Entities;
-using TLGames.Core.Interfaces;
-using TLGames.Infrastructure.Services;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
@@ -16,19 +14,19 @@ namespace TLGames.Infrastructure.Data
         protected override string TableName => "news_images";
 
         protected override string ColumnIdName => "news_image_id";
-        private readonly IStringConverter _converter = App.SystemServices.GetService<IStringConverter>();
+
 
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {TableName} (news_id, image_url) 
+            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (news_id, image_url) 
                         VALUES(@NewsId, @ImageUrl); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {TableName}
+            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET image_url = @ImageUrl
-                        WHERE {ColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public async Task<List<NewsImageModel>> GetAllByIdAsync(string id, string colIdName)

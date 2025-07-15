@@ -1,16 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
-using TLGames.Core.Entities;
-using TLGames.Core.Interfaces;
-using TLGames.Infrastructure.Configuration;
-using TLGames.Infrastructure.Data;
-using TLGames.Infrastructure.Persistence;
+using TLGames.Application.Services;
 using Wpf.Ui.Controls;
 
 namespace TLGames
@@ -18,7 +11,7 @@ namespace TLGames
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : System.Windows.Application
     {
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -37,33 +30,18 @@ namespace TLGames
         const int SW_HIDE = 0;
         const int SW_SHOW = 5;
 
-        public static IDbConnectionFactory ConnectionFactory { get; private set; }
-        public static IServiceProvider SystemServices { get; private set; }
-        protected override async void OnStartup(StartupEventArgs e)
+        protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            SystemServices = InfrastructureServicesConfiguration.ConfigureServices();
-            SnakeCaseMapperInitializer.RegisterAllEntities();
-            try
-            {
-                ConnectionFactory = SystemServices.GetRequiredService<IDbConnectionFactory>();
-                using IDbConnection connection = ConnectionFactory.CreateConnection();
-                connection.Open();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error when connect to db! {ex.Message}");
-                Shutdown();
-            }
-            List<CartModel> carts = await (new CartDAO(ConnectionFactory)).GetAllAsync();
-            //MainWindow mainWindow = new();
-            //mainWindow.Show();
+
+            /* Test GET DATA */
+            GetProviderService.SetSystemServices();
+            GetConnectionFactoryService.GetConnectionFactory();
 #if DEBUG
             AllocConsole(); // Gán console cho tiến trình hiện tại
             Console.OutputEncoding = Encoding.UTF8; // Đặt mã hóa UTF-8
             Console.InputEncoding = Encoding.UTF8;
-            foreach (CartModel cart in carts)
-                Console.WriteLine(cart.TotalPrice);
+
 #endif
         }
 

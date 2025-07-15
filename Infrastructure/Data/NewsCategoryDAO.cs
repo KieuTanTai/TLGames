@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -7,36 +6,37 @@ using System.Threading.Tasks;
 using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
-using TLGames.Core.Interfaces;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class NewsCategoryDAO(IDbConnectionFactory connectionFactory) : BaseDAO<NewsCategoryModel>(connectionFactory), IGetRelativeAsync<NewsCategoryModel>,
+    internal class NewsCategoryDAO(IDbConnectionFactory connectionFactory,
+                                        string tableName,
+                                        string columnIdName) : BaseDAO<NewsCategoryModel>(connectionFactory, tableName, columnIdName), IGetRelativeAsync<NewsCategoryModel>,
                                     ISoftDeleteAsync<NewsCategoryModel>, IGetDataByEnum<NewsCategoryModel>
     {
-        protected override string TableName => "news_categories";
+        //protected override string TableName => "news_categories";
+        //protected override string ColumnIdName => "news_category_id";
 
-        protected override string ColumnIdName => "news_category_id";
-        private readonly IStringConverter _converter = App.SystemServices.GetService<IStringConverter>();
 
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {TableName} (category_name, status) 
+            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (category_name, status) 
                         VALUES(@CategoryName, @Status); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {TableName}
+            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET category_name = @CategoryName, status = @Status
-                        WHERE {ColumnIdName} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetQueryDataString(string colName)
         {
             if (!_colService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
         }
 
         protected override string DeleteByIdQuery(string colIdName)

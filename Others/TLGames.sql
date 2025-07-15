@@ -342,7 +342,7 @@ CREATE TABLE IF NOT EXISTS `news_images` (
 -- banks
 CREATE TABLE IF NOT EXISTS `banks` (
      `bank_id` INT UNSIGNED AUTO_INCREMENT,
-     `bank_name` VARCHAR(50) NOT NULL DEFAULT '',
+     `bank_name` VARCHAR(255) NOT NULL DEFAULT '',
      `status` ENUM('active', 'inactive') DEFAULT 'active',
      PRIMARY KEY(`bank_id`)
 ) ENGINE = InnoDB;

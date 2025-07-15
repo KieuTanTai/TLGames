@@ -1,28 +1,28 @@
 ﻿using Dapper;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using TLGames.Applications.Services;
 using TLGames.Core.Entities;
-using TLGames.Core.Interfaces;
-using static TLGames.Infrastructure.Data.FollowerOfDeveloperDAO;
+using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class InvoiceDiscountCodeDAO(IDbConnectionFactory connectionFactory) : BaseDAO<InvoiceDiscountCodeModel>(connectionFactory), IGetAllByIdAsync<InvoiceDiscountCodeModel>, IGetSingleByIdsAsync<InvoiceDiscountCodeModel>
+    public record InvoiceDiscountCodeItemIds(string InvoiceId, string DiscountCodeId);
+    internal class InvoiceDiscountCodeDAO(IDbConnectionFactory connectionFactory,
+                                        string tableName,
+                                        string columnIdName,
+                                        string secondColumnIdName) : BaseDAO<InvoiceDiscountCodeModel>(connectionFactory, tableName, columnIdName, secondColumnIdName),
+                                        IGetAllByIdAsync<InvoiceDiscountCodeModel>, IGetSingleByIdsAsync<InvoiceDiscountCodeModel>
     {
-        protected override string TableName => "discount_code_of_invoices";
-
-        protected override string ColumnIdName => "invoice_id";
-        private static string SecondColumnIdName => "discount_code";
-        private readonly IStringConverter _converter = App.SystemServices.GetService<IStringConverter>();
-        public record InvoiceDiscountCodeItemIds(string InvoiceId, string DiscountCodeId);
+        //protected override string TableName => "discount_code_of_invoices";
+        //protected override string ColumnIdName => "invoice_id";
+        //private static string SecondColumnIdName => "discount_code";
 
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {TableName} ({ColumnIdName}, {SecondColumnIdName}) 
+            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} ({(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}, {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))}) 
                         VALUES(@{_converter.SnakeCaseToPascalCase(ColumnIdName)}, @{_converter.SnakeCaseToPascalCase(ColumnIdName)}); SELECT LAST_INSERT_ID();";
         }
 
@@ -38,7 +38,7 @@ namespace TLGames.Infrastructure.Data
 
         public string GetSingleDataString()
         {
-            return $"SELECT * FROM {TableName} WHERE {ColumnIdName} = {_converter.SnakeCaseToPascalCase(ColumnIdName)} AND {SecondColumnIdName} = {_converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = {_converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = {_converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         public async Task<List<InvoiceDiscountCodeModel>> GetAllByIdAsync(string id, string colIdName)

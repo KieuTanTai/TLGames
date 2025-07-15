@@ -4,13 +4,18 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TLGames"
-        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" x:Name="Main" x:Class="TLGames.MainWindow" Icon="/WPFUI/Resources/images/icons/web_logo/main-logo.jpg"
-        xmlns:controls="clr-namespace:TLGames.WPFUI.Views"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" 
+        x:Name="Main" 
+        x:Class="TLGames.MainWindow" 
+        Icon="/WPFUI/Resources/images/icons/web_logo/main-logo.jpg"
+        xmlns:controls="clr-namespace:TLGames.WPFUI.Views" 
+        xmlns:local1="clr-namespace:TLGames.Core.Entities" 
+        xmlns:viewmodels="clr-namespace:TLGames.WPFUI.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
         mc:Ignorable="d"
         Title="TLGames"
         Height="1080"
         Width="1920"
-        Topmost="True"
+        Topmost="False"
         WindowStartupLocation="CenterScreen"
         Cursor="Arrow"
         FontFamily="Arial"
@@ -28,28 +33,28 @@
             <GradientStop Color="White" Offset="1"/>
         </LinearGradientBrush>
     </Window.Foreground>
-    <Border x:Name="BrMainForm" BorderBrush="Black" BorderThickness="0.25" CornerRadius="10">
+    <Border x:Name="BrMainForm" BorderThickness="1,1,1,1" CornerRadius="6" BorderBrush="#FF4595FF">
         <Border.Background>
-            <LinearGradientBrush EndPoint="1.25,2" StartPoint="0,0">
+            <LinearGradientBrush EndPoint="1,2" StartPoint="0,-1">
                 <GradientStop Color="Black"/>
-                <GradientStop Color="#FF5E9AFB" Offset="1"/>
+                <GradientStop Color="#FFC2CBFF" Offset="1"/>
             </LinearGradientBrush>
         </Border.Background>
         <Grid x:Name="GMainContainer" Margin="0,0,-2,-2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="100"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="68"/>
+                <RowDefinition/>
             </Grid.RowDefinitions>
 
             <Grid x:Name="GHeaderForm" Grid.Row="0" >
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="638"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel x:Name="SPControlForm" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Height="40" Width="120" Margin="0,0,10,0">
+                <StackPanel x:Name="SPControlForm" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Height="40" Width="120">
                     <ui:Card x:Name="CMinimizeContainer" HorizontalAlignment="Left" Cursor="Hand" Width="40">
                         <Image x:Name="ImgMinimizeButton" Source="/WPFUI/Resources/images/icons/other_icons/icons8-minimize-40.png" HorizontalAlignment="Center" VerticalAlignment="Center" Width="20"/>
                     </ui:Card>
@@ -60,7 +65,7 @@
                         <Image x:Name="ImgExitFormButton" Source="/WPFUI/Resources/Images/icons/buttons/icons8-exit-40.png" HorizontalAlignment="Center" VerticalAlignment="Center" Width="20" Height="20"/>
                     </ui:Card>
                 </StackPanel>
-                <StackPanel x:Name="SPHeaderMenu" Orientation="Horizontal" VerticalAlignment="Center" Height="40" HorizontalAlignment="Left" Width="638" Margin="10,0,0,0">
+                <StackPanel x:Name="SPHeaderMenu" Orientation="Horizontal" VerticalAlignment="Center" Height="40" HorizontalAlignment="Center" Width="638">
                     <ui:Card x:Name="CMainMenuIcon">
                         <Grid x:Name="CMainIconContainer" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,10,0" Cursor="Hand">
                             <Grid.ColumnDefinitions>
@@ -116,39 +121,213 @@
                 </StackPanel>
             </Grid>
 
-            <StackPanel x:Name="SPSupHeader" Grid.Row="1" Height="100" VerticalAlignment="Top">
-                <WrapPanel x:Name="WPSearchContainer" Height="32" Width="647">
-                    <Border x:Name="BrHeaderSearchContainer" BorderBrush="#FFA6C0FF" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0" CornerRadius="2" Background="#FF2D363E">
-                        <ui:TextBox x:Name="TbHeaderSearch" TextWrapping="Wrap" Text="Search Product" Width="120" MinWidth="600" Height="30" VerticalContentAlignment="Center" Foreground="White" SelectionTextBrush="#FFFFDEDE" Background="{x:Null}" BorderBrush="{x:Null}">
-                            <ui:TextBox.SelectionBrush>
-                                <SolidColorBrush Color="#FF0078D7" Opacity="1"/>
-                            </ui:TextBox.SelectionBrush>
-                        </ui:TextBox>
+            <StackPanel x:Name="SPSupHeader" Grid.Row="1" Height="50" VerticalAlignment="Center">
+                <Grid x:Name="GSupHeaderContainer" Height="{Binding ActualHeight, ElementName=SPSupHeader, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=SPSupHeader, Mode=OneWay}">
+                    <Border x:Name="BStackFuncs" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center" Height="40" Padding="10,0,10,0" CornerRadius="6,6,6,6">
+                        <Border.Background>
+                            <LinearGradientBrush EndPoint="0,4" StartPoint="2,-1">
+                                <GradientStop Color="Black" Offset="0"/>
+                                <GradientStop Color="#FF6789DE" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Grid HorizontalAlignment="Center" Margin="0,3,0,3">
+                            <StackPanel x:Name="SPSubHeaderFuncs" Orientation="Horizontal" HorizontalAlignment="Left" Height="24" VerticalAlignment="Center">
+                                <Border x:Name="BCategories" Width="100" Margin="0,0,10,0" Background="#FFC7D0FF" BorderThickness="1,1,1,1" CornerRadius="4,4,4,4" HorizontalAlignment="Center" Cursor="Hand" >
+                                    <Button x:Name="BtnCategories" Content="Categories" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}" VerticalAlignment="Center" Margin="18,0,0,0" HorizontalAlignment="Left" Width="62"/>
+                                </Border>
+                                <Border x:Name="BNews" Width="100" Margin="{Binding Margin, ElementName=BCategories}" BorderThickness="1,1,1,1" CornerRadius="4,4,4,4" Background="#FFC7D0FF" HorizontalAlignment="Center" Cursor="Hand" >
+                                    <Button x:Name="BtnNews" Content="News" Cursor="{Binding Cursor, ElementName=BtnCategories}" BorderBrush="{x:Null}" Background="{x:Null}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border x:Name="BHistoryPurchase" Width="100" Margin="{Binding Margin, ElementName=BCategories}" BorderThickness="1,1,1,1" CornerRadius="4,4,4,4" Background="#FFC7D0FF" HorizontalAlignment="Center" Cursor="Hand" >
+                                    <Button x:Name="BtnHistoryPurchase" Content="History Purchase" Cursor="{Binding Cursor, ElementName=BtnCategories}" BorderBrush="{x:Null}" Background="{x:Null}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border x:Name="BCart" Width="100" Margin="{Binding Margin, ElementName=BCategories}" CornerRadius="4,4,4,4" BorderThickness="1,1,1,1" Background="#FFC7D0FF" HorizontalAlignment="Center" Cursor="Hand">
+                                    <Button x:Name="BtnCart" Content="Cart" Cursor="{Binding Cursor, ElementName=BtnCategories}" Background="{x:Null}" BorderBrush="{x:Null}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                            <StackPanel x:Name="SPHeaderSearch" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="638,0,0,0" Height="{Binding ActualHeight, ElementName=SPSubHeaderFuncs, Mode=OneWay}">
+                                <WrapPanel x:Name="WPSearchContainer" HorizontalAlignment="Center" VerticalAlignment="Center" Height="24">
+                                    <Border x:Name="BrHeaderSearchContainer" BorderBrush="#FFA6C0FF" BorderThickness="1" VerticalAlignment="Center" CornerRadius="4,4,4,4" Background="Black" HorizontalAlignment="Center" Width="300">
+                                        <ui:TextBox x:Name="TbHeaderSearch" TextWrapping="Wrap" Text="Search Product" SelectionTextBrush="#FFFFB4B4" Background="{x:Null}" BorderBrush="{x:Null}" Height="{Binding ActualHeight, ElementName=SPHeaderSearch, Mode=OneWay}" VerticalContentAlignment="Center" Padding="4,0,0,0">
+                                            <ui:TextBox.Foreground>
+                                                <SolidColorBrush Color="White" Opacity="1"/>
+                                            </ui:TextBox.Foreground>
+                                            <ui:TextBox.SelectionBrush>
+                                                <SolidColorBrush Color="#FF79B4DA" Opacity="1"/>
+                                            </ui:TextBox.SelectionBrush>
+                                        </ui:TextBox>
+                                    </Border>
+                                    <Border x:Name="BrHeaderSearchButtonContainer" BorderThickness="1" CornerRadius="4,4,4,4" Background="#FF2D5A82" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0,0,0" Width="24">
+                                        <Border.BorderBrush>
+                                            <SolidColorBrush Color="#FFA6C0FF" Opacity="1"/>
+                                        </Border.BorderBrush>
+                                        <ui:Button x:Name="BtnSearchProduct" Background="{x:Null}" BorderBrush="{x:Null}" Width="{Binding ActualWidth, ElementName=BrHeaderSearchButtonContainer, Mode=OneWay}" Height="{Binding ActualHeight, ElementName=BrHeaderSearchButtonContainer, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="-1,0,0,0">
+                                            <Image x:Name="ImgSearchButton" Stretch="Fill" Source="/WPFUI/Resources/images/icons/buttons/icons8-search-40.png" Cursor="Hand" Width="{Binding ActualWidth, ElementName=BtnSearchProduct, Mode=OneWay}" Height="{Binding ActualHeight, ElementName=BtnSearchProduct, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </ui:Button>
+                                    </Border>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Grid>
                     </Border>
-                    <Border x:Name="BrHeaderSearchButtonContainer" BorderBrush="#FFA6C0FF" BorderThickness="1" CornerRadius="5" Background="#FF2D363E" HorizontalAlignment="Center" Width="30" Height="30">
-                        <ui:Card x:Name="CButtonHeaderSearch" Cursor="Hand" Foreground="{x:Null}" BorderThickness="1,1,1,1">
-                            <ui:Card.Background>
-                                <SolidColorBrush Color="#FFBADBFF" Opacity="0"/>
-                            </ui:Card.Background>
-                            <ui:Button x:Name="BtnHeaderSearch" Cursor="Hand" Foreground="White" Padding="0,0,0,0" Background="{x:Null}" Height="30" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                <ui:Button.BorderBrush>
-                                    <SolidColorBrush Color="#FFC8DDFF" Opacity="0"/>
-                                </ui:Button.BorderBrush>
-                                <Image Stretch="Fill" Source="/WPFUI/Resources/Images/icons/buttons/icons8-search-40.png" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Cursor="Hand"/>
-                            </ui:Button>
-                        </ui:Card>
-                    </Border>
-                </WrapPanel>
+                </Grid>
             </StackPanel>
-            <Grid x:Name="GMainContent" Grid.Row="2">
+            <Grid x:Name="GMainContent" Grid.Row="2" Margin="10,0,10,10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="80*"/>
+                    <ColumnDefinition Width="42*"/>
                     <ColumnDefinition Width="295*"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel x:Name="SPNavControl"/>
+                <StackPanel x:Name="SPSidebarControl">
+                    <Border x:Name="BSidebar" BorderBrush="White">
+                        <Grid x:Name="GSidebarContainer" Width="237">
+                            <WrapPanel
+                                Width="{Binding ActualWidth, ElementName=GSidebarContainer, Mode=OneWay}" Orientation="Vertical" x:Name="WPRecentlyViewContainer" VerticalAlignment="Top" HorizontalAlignment="Left">
+                                <ui:CardAction x:Name="CACertentlyViewTitle" Foreground="White" Content="Recently View" VerticalAlignment="Center" Width="{Binding ActualWidth, ElementName=WPRecentlyViewContainer, Mode=OneWay}"/>
+                                <ListBox x:Name="LBRecentlyView" ItemsSource="{Binding Categories}" d:ItemsSource="{d:SampleData ItemCount=5}" Width="{Binding ActualWidth, ElementName=WPRecentlyViewContainer, Mode=OneWay}" Height="92" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type local1:CategoryModel}">
+                                            <Border Margin="2" Padding="5" BorderThickness="0,0,0,1" BorderBrush="White">
+                                                <StackPanel Orientation="Horizontal" Width="185">
+                                                    <TextBlock Text="{Binding CategoryId}" FontWeight="Bold" Foreground="Red"/>
+                                                    <TextBlock Text="{Binding CategoryName}" Margin="10,0,0,0" Foreground="Red"/>
+                                                    <TextBlock Text="{Binding Status}" Margin="10,0,0,0" Foreground="Red"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </WrapPanel>
+                            <WrapPanel
+                                Orientation="Vertical" x:Name="WPYourTagsContainer" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,140,0,0" Width="{Binding ActualWidth, ElementName=GSidebarContainer, Mode=OneWay}">
+                                <ui:CardAction x:Name="CAYourTagTitle"
+                                    Content="Your Tags" Foreground="White" Margin="0,0,0,5" VerticalAlignment="Center" Width="{Binding ActualWidth, ElementName=WPYourTagsContainer, Mode=OneWay}"/>
+                                <ListBox x:Name="LBYourTag" ItemsSource="{Binding Categories}" d:ItemsSource="{d:SampleData ItemCount=5}" Width="{Binding ActualWidth, ElementName=WPRecentlyViewContainer, Mode=OneWay}" Height="92" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type local1:CategoryModel}">
+                                            <Border Margin="2" Padding="5" BorderThickness="0,0,0,1" BorderBrush="White">
+                                                <StackPanel Orientation="Horizontal" Width="185">
+                                                    <TextBlock Text="{Binding CategoryId}" FontWeight="Bold" Foreground="Red"/>
+                                                    <TextBlock Text="{Binding CategoryName}" Margin="10,0,0,0" Foreground="Red"/>
+                                                    <TextBlock Text="{Binding Status}" Margin="10,0,0,0" Foreground="Red"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </WrapPanel>
+                            <WrapPanel
+                                Orientation="Vertical" x:Name="WPRecommenedContainer" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,280,0,0" Width="{Binding ActualWidth, ElementName=SPSidebarControl, Mode=OneWay}">
+                                <ui:CardAction x:Name="CARecommendTitle"
+                                    Content="Recommend" Foreground="White" Margin="0,0,0,5" VerticalAlignment="Center" Width="{Binding ActualWidth, ElementName=WPRecommenedContainer, Mode=OneWay}"/>
+                                <ListBox x:Name="LBReccommend" ItemsSource="{Binding Categories}" d:ItemsSource="{d:SampleData ItemCount=5}" Width="{Binding ActualWidth, ElementName=WPRecentlyViewContainer, Mode=OneWay}" Height="92" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type local1:CategoryModel}">
+                                            <Border Margin="2" Padding="5" BorderThickness="0,0,0,1" BorderBrush="White">
+                                                <StackPanel Orientation="Horizontal" Width="185">
+                                                    <TextBlock Text="{Binding CategoryId}" FontWeight="Bold" Foreground="Red"/>
+                                                    <TextBlock Text="{Binding CategoryName}" Margin="10,0,0,0" Foreground="Red"/>
+                                                    <TextBlock Text="{Binding Status}" Margin="10,0,0,0" Foreground="Red"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </WrapPanel>
+                            <WrapPanel
+                                Orientation="Vertical" x:Name="WPBrowseCategoriesContainer" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,420,0,0" Width="{Binding ActualWidth, ElementName=GSidebarContainer, Mode=OneWay}">
+                                <ui:CardAction x:Name="CABrowseCategoryTitle"
+                                    Content="Browse Category" Foreground="White" Margin="0,0,0,5" Width="{Binding ActualWidth, ElementName=WPBrowseCategoriesContainer, Mode=OneWay}"/>
+                                <ListBox x:Name="LBBrowseCategory" ItemsSource="{Binding Categories}" d:ItemsSource="{d:SampleData ItemCount=5}" Width="{Binding ActualWidth, ElementName=WPRecentlyViewContainer, Mode=OneWay}" Height="92" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type local1:CategoryModel}">
+                                            <Border Margin="2" Padding="5" BorderThickness="0,0,0,1" BorderBrush="White">
+                                                <StackPanel Orientation="Horizontal" Width="185">
+                                                    <TextBlock Text="{Binding CategoryId}" FontWeight="Bold" Foreground="Red"/>
+                                                    <TextBlock Text="{Binding CategoryName}" Margin="10,0,0,0" Foreground="Red"/>
+                                                    <TextBlock Text="{Binding Status}" Margin="10,0,0,0" Foreground="Red"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </WrapPanel>
+                            <WrapPanel
+                                Orientation="Vertical" x:Name="WPBrowseByGenreContainer" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,560,0,0" Width="{Binding ActualWidth, ElementName=GSidebarContainer, Mode=OneWay}">
+                                <ui:CardAction x:Name="CABrowseByGenreTitle"
+                                    Background="#00000000" Margin="0,0,0,5" Foreground="White" Content="Browse By Genres" VerticalAlignment="Center" Width="{Binding ActualWidth, ElementName=WPBrowseByGenreContainer, Mode=OneWay}"/>
+                                <ListBox x:Name="LBBrowseByGenre" ItemsSource="{Binding Categories}" d:ItemsSource="{d:SampleData ItemCount=5}" Width="{Binding ActualWidth, ElementName=WPRecentlyViewContainer, Mode=OneWay}" Height="92" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type local1:CategoryModel}">
+                                            <Border Margin="2" Padding="5" BorderThickness="0,0,0,1" BorderBrush="White">
+                                                <StackPanel Orientation="Horizontal" Width="185">
+                                                    <TextBlock Text="{Binding CategoryId}" FontWeight="Bold" Foreground="Red"/>
+                                                    <TextBlock Text="{Binding CategoryName}" Margin="10,0,0,0" Foreground="Red"/>
+                                                    <TextBlock Text="{Binding Status}" Margin="10,0,0,0" Foreground="Red"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </WrapPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+                <Grid x:Name="GListProductContainer" Margin="0,0,0,10" Width="1665" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height="5*"/>
+                    </Grid.RowDefinitions>
+
+                    <ScrollViewer x:Name="SVMainFormProducts" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,50" CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                        <UniformGrid x:Name="UGMainContainer" Columns="4" Margin="20,0,20,0" Grid.Row="1" Height="Auto" VerticalAlignment="Top">
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        </UniformGrid>
+                    </ScrollViewer>
+                    <Grid x:Name="GAdsContainer">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="7*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+                        <WrapPanel x:Name="WPMainAds" Grid.RowSpan="2" Margin="30,0,20,0">
+                            <Image Height="{Binding ActualHeight, ElementName=WPMainAds, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=WPMainAds, Mode=OneWay}" Source="/WPFUI/Resources/images/icons/web_logo/light-novel-world.png" Margin="0,0,0,-2"/>
+                        </WrapPanel>
+                        <WrapPanel x:Name="WPFirstMiniAds" Grid.Column="1" HorizontalAlignment="Left" Width="424">
+                            <Image Height="{Binding ActualHeight, ElementName=WPFirstMiniAds, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=WPFirstMiniAds, Mode=OneWay}" Source="/WPFUI/Resources/images/icons/web_logo/32-daily-ui-logo-large.png" Margin="0,0,0,10"/>
+                        </WrapPanel>
+                        <WrapPanel x:Name="WPSecondMiniAds" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Width="424">
+                            <Image Height="{Binding ActualHeight, ElementName=WPSecondMiniAds, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=WPSecondMiniAds, Mode=OneWay}" Source="/WPFUI/Resources/images/icons/payment_methods/vnpay_logo.png" Margin="0,10,0,0"/>
+                        </WrapPanel>
+                    </Grid>
+                </Grid>
             </Grid>
 
-            <controls:ResizeableBorder Grid.RowSpan="3"/>
+            <controls:ResizeableBorderUserControl Grid.RowSpan="3" Margin="0,0,7,0" d:IsHidden="True"/>
         </Grid>
     </Border>
 </Window>
