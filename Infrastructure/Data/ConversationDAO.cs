@@ -3,20 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
 
 namespace TLGames.Infrastructure.Data
 {
     public record ConversationItemIds(string ConversationId, string FirstUserId, string SecondUserId);
-    internal class ConversationDAO(IDbConnectionFactory connectionFactory,
-                                        string tableName,
-                                        string columnIdName) : BaseDAO<ConversationModel>(connectionFactory, tableName, columnIdName), IGetSingleByIdsAsync<ConversationModel>, IGetAllByIdAsync<ConversationModel>
+    internal class ConversationDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+        : BaseDAO<ConversationModel>(connectionFactory, colService, converter, checker, "conversations", "conversation_id", null), IGetSingleByIdsAsync<ConversationModel>, IGetAllByIdAsync<ConversationModel>
     {
-        //protected override string TableName => "conversations";
-        //protected override string ColumnIdName => "conversation_id";
-
         protected override string GetInsertQuery()
         {
             return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}(first_user_id, second_user_id, start_time, last_message_time, status) 
@@ -27,11 +23,11 @@ namespace TLGames.Infrastructure.Data
         {
             return $@"UPDATE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET start_time=@StartTime, last_message_time=@LastMessageTime, status=@Status
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}=@{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}=@{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
         public string GetSingleDataString()
         {
-            return $@"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}
+            return $@"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}
                         AND first_user_id = @FirstUserId, second_user_id = @SecondUserId";
         }
 

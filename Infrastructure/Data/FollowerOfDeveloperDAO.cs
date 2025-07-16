@@ -3,46 +3,40 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
 
 namespace TLGames.Infrastructure.Data
 {
     public record FollowerOfDeveloperItemIds(string FollowerId, string DeveloperId);
-    internal class FollowerOfDeveloperDAO(IDbConnectionFactory connectionFactory,
-                                        string tableName,
-                                        string columnIdName,
-                                        string secondColumnIdName) : BaseDAO<FollowerOfDeveloperModel>(connectionFactory, tableName, columnIdName, secondColumnIdName), IGetAllByIdAsync<FollowerOfDeveloperModel>,
-                                            IGetSingleByIdsAsync<FollowerOfDeveloperModel>, IGetDataByDateTime<FollowerOfDeveloperModel>, IDeleteByIdsAsync
+    internal class FollowerOfDeveloperDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+        : BaseDAO<FollowerOfDeveloperModel>(connectionFactory, colService, converter, checker, "follower_of_developers", "follower_id", "developer_id"),
+        IGetAllByIdAsync<FollowerOfDeveloperModel>, IGetSingleByIdsAsync<FollowerOfDeveloperModel>, IGetDataByDateTime<FollowerOfDeveloperModel>, IDeleteByIdsAsync
     {
-        //protected override string TableName => "follower_of_developers";
-        //protected override string ColumnIdName => "follower_id";
-        //private static string SecondColumnIdName => "developer_id";
-
         protected override string GetInsertQuery()
         {
             return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} ({(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}, {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))}, start_follow_date) 
-                        VALUES(@{_converter.SnakeCaseToPascalCase(ColumnIdName)}, @{_converter.SnakeCaseToPascalCase(ColumnIdName)}, @StartFollowDate); SELECT LAST_INSERT_ID();";
+                        VALUES(@{Converter.SnakeCaseToPascalCase(ColumnIdName)}, @{Converter.SnakeCaseToPascalCase(ColumnIdName)}, @StartFollowDate); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
             return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET start_follow_date = @StartFollowDate
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}
-                        AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}
+                        AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetDeleteQuery()
         {
-            return $"DELETE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"DELETE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         public string GetSingleDataString()
         {
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = {_converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = {_converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         public async Task<List<FollowerOfDeveloperModel>> GetAllByIdAsync(string id, string colIdName)
@@ -111,35 +105,35 @@ namespace TLGames.Infrastructure.Data
         // search by time
         public string GetByMonth(string colName)
         {
-            if (!_colService.IsValidColumn(TableName, colName))
+            if (!ColService.IsValidColumn(TableName, colName))
                 return "";
             return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Month({colName}) = @Input";
         }
 
         public string GetByYear(string colName)
         {
-            if (!_colService.IsValidColumn(TableName, colName))
+            if (!ColService.IsValidColumn(TableName, colName))
                 return "";
             return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Year({colName}) = @Input";
         }
 
         public string GetByDateTime(string colName)
         {
-            if (!_colService.IsValidColumn(TableName, colName))
+            if (!ColService.IsValidColumn(TableName, colName))
                 return "";
             return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
         }
 
         public string GetByDateTimeRange(string colName)
         {
-            if (!_colService.IsValidColumn(TableName, colName))
+            if (!ColService.IsValidColumn(TableName, colName))
                 return "";
             return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public string GetByMonthAndYear(string colName)
         {
-            if (!_colService.IsValidColumn(TableName, colName))
+            if (!ColService.IsValidColumn(TableName, colName))
                 return "";
             return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
         }

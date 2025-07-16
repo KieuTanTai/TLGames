@@ -3,22 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class NewsCategoryDAO(IDbConnectionFactory connectionFactory,
-                                        string tableName,
-                                        string columnIdName) : BaseDAO<NewsCategoryModel>(connectionFactory, tableName, columnIdName), IGetRelativeAsync<NewsCategoryModel>,
-                                    ISoftDeleteAsync<NewsCategoryModel>, IGetDataByEnum<NewsCategoryModel>
+    internal class NewsCategoryDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+        : BaseDAO<NewsCategoryModel>(connectionFactory, colService, converter, checker, "news_categories", "news_category_id", null),
+        IGetRelativeAsync<NewsCategoryModel>, ISoftDeleteAsync<NewsCategoryModel>, IGetDataByEnum<NewsCategoryModel>
     {
-        //protected override string TableName => "news_categories";
-        //protected override string ColumnIdName => "news_category_id";
-
-
         protected override string GetInsertQuery()
         {
             return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (category_name, status) 
@@ -29,12 +24,12 @@ namespace TLGames.Infrastructure.Data
         {
             return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET category_name = @CategoryName, status = @Status
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetQueryDataString(string colName)
         {
-            if (!_colService.IsValidColumn(TableName, colName))
+            if (!ColService.IsValidColumn(TableName, colName))
                 return "";
             return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
         }

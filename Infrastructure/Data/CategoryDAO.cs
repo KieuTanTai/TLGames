@@ -3,21 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class CategoryDAO(IDbConnectionFactory connectionFactory,
-                                        string tableName,
-                                        string columnIdName) : BaseDAO<CategoryModel>(connectionFactory, tableName, columnIdName), IGetRelativeAsync<CategoryModel>,
-                                ISoftDeleteAsync<CategoryModel>, IGetDataByEnum<CategoryModel>
+    internal class CategoryDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+        : BaseDAO<CategoryModel>(connectionFactory, colService, converter, checker, "categories", "id", null),
+        IGetRelativeAsync<CategoryModel>, ISoftDeleteAsync<CategoryModel>, IGetDataByEnum<CategoryModel>
     {
-        //protected override string TableName => "categories";
-        //protected override string ColumnIdName => "category_id";
-
         public async Task<List<CategoryModel>> GetRelativeAsync(string input, string colName)
         {
             try
@@ -53,7 +49,7 @@ namespace TLGames.Infrastructure.Data
 
         public string GetQueryDataString(string colName)
         {
-            if (!_colService.IsValidColumn(TableName, colName))
+            if (!ColService.IsValidColumn(TableName, colName))
                 return "";
             return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
         }
@@ -62,7 +58,7 @@ namespace TLGames.Infrastructure.Data
         {
             return $@"UPDATE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} 
                         SET category_name=@CategoryName, status = @Status
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}=@{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}=@{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         // search by enum

@@ -9,17 +9,19 @@ using TLGames.Infrastructure.Data;
 
 namespace TLGames.Application.Services.Product
 {
-    internal class GetProductService(IDbConnectionFactory connectionFactory) : ValidateService, IGetDataService<ProductModel>
+    internal class GetProductService(IDbConnectionFactory connectionFactory,
+                                        string tableName,
+                                        string columnIdName) : ValidateService, IGetDataService<ProductModel>
     {
         public async Task<ProductModel> GetByIdAsync(string id)
         {
-            ProductDAO product = new ProductDAO(connectionFactory);
+            ProductDAO product = new ProductDAO(connectionFactory, tableName, columnIdName);
             return await product.GetByIdAsync(id);
         }
 
         public async Task<List<ProductModel>> GetAllAsync()
         {
-            ProductDAO product = new ProductDAO(connectionFactory);
+            ProductDAO product = new ProductDAO(connectionFactory, tableName, columnIdName);
             return await product.GetAllAsync();
         }
 
@@ -27,7 +29,7 @@ namespace TLGames.Application.Services.Product
         {
             if (!IsValidStringInputDB(colName))
                 return new List<ProductModel>();
-            ProductDAO product = new ProductDAO(connectionFactory);
+            ProductDAO product = new ProductDAO(connectionFactory, tableName, columnIdName);
             return await product.GetRelativeAsync(name, colName);
         }
 
@@ -35,7 +37,7 @@ namespace TLGames.Application.Services.Product
         {
             if (!IsValidStringInputDB(colName))
                 return new List<ProductModel>();
-            ProductDAO product = new ProductDAO(connectionFactory);
+            ProductDAO product = new ProductDAO(connectionFactory, tableName, columnIdName);
             return await product.GetAllByIdAsync(developerId.ToString(), colName);
         }
 
@@ -43,7 +45,7 @@ namespace TLGames.Application.Services.Product
         {
             if (!IsValidStringInputDB(colName))
                 return new List<ProductModel>();
-            ProductDAO product = new ProductDAO(connectionFactory);
+            ProductDAO product = new ProductDAO(connectionFactory, tableName, columnIdName);
             return await product.GetAllByTime(releaseDate.ToString(), colName, EDataTimeType.DATETIME);
         }
 
@@ -51,7 +53,7 @@ namespace TLGames.Application.Services.Product
         {
             if (!IsValidStringInputDB(colName))
                 return new List<ProductModel>();
-            ProductDAO product = new ProductDAO(connectionFactory);
+            ProductDAO product = new ProductDAO(connectionFactory, tableName, columnIdName);
             return await product.GetAllByTime(time.ToString(), colName, eDataTimeType);
         }
 
@@ -59,7 +61,7 @@ namespace TLGames.Application.Services.Product
         {
             if (!IsValidStringInputDB(colName))
                 return new List<ProductModel>();
-            ProductDAO product = new ProductDAO(connectionFactory);
+            ProductDAO product = new ProductDAO(connectionFactory, tableName, columnIdName);
             return await product.GetAllByEnum(gameMode, colName);
         }
 
@@ -67,7 +69,7 @@ namespace TLGames.Application.Services.Product
         {
             if (!IsValidStringInputDB(colName))
                 return new List<ProductModel>();
-            ProductDAO product = new ProductDAO(connectionFactory);
+            ProductDAO product = new ProductDAO(connectionFactory, tableName, columnIdName);
             return await product.GetAllByIdAsync(ratingAge.ToString(), colName);
         }
 
@@ -75,7 +77,7 @@ namespace TLGames.Application.Services.Product
         {
             if (!IsValidStringInputDB(colName))
                 return new List<ProductModel>();
-            ProductDAO product = new ProductDAO(connectionFactory);
+            ProductDAO product = new ProductDAO(connectionFactory, tableName, columnIdName);
             return await product.GetAllByEnum(status, colName);
         }
     }

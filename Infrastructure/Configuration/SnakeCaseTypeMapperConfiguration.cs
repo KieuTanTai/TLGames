@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using TLGames.Application.Services;
-using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
 
 namespace TLGames.Infrastructure.Configuration;
 public class SnakeCaseTypeMapperConfiguration<T> : FallbackTypeMapper

@@ -1,4 +1,4 @@
-﻿namespace TLGames.Core.Interfaces.IData
+﻿namespace TLGames.Core.Interfaces.IValidate
 {
     public interface IStringChecker
     {

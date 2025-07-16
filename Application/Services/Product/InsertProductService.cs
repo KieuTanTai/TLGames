@@ -7,17 +7,19 @@ using TLGames.Infrastructure.Data;
 
 namespace TLGames.Application.Services.Product
 {
-    internal class InsertProductService(IDbConnectionFactory connectionFactory) : IInsertDataService<ProductModel>
+    internal class InsertProductService(IDbConnectionFactory connectionFactory,
+                                        string tableName,
+                                        string columnIdName) : IInsertDataService<ProductModel>
     {
         public async Task<int> InsertAsync(ProductModel entity)
         {
-            ProductDAO product = new(connectionFactory);
+            ProductDAO product = new(connectionFactory, tableName, columnIdName);
             return await product.InsertAsync(entity);
         }
 
         public async Task<int> InsertManyAsync(IEnumerable<ProductModel> entities)
         {
-            ProductDAO product = new(connectionFactory);
+            ProductDAO product = new(connectionFactory, tableName, columnIdName);
             return await product.InsertManyAsync(entities);
         }
     }

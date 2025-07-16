@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Data;
 using TLGames.Infrastructure.Persistence;
 using TLGames.Infrastructure.Persistence.Repositories;
 using TLGames.Infrastructure.Services;
@@ -22,12 +24,18 @@ namespace TLGames.Infrastructure.Configuration
                     throw new InvalidOperationException("connection string is incorrect!");
                 services.AddSingleton<IDbConnectionFactory>(provider => new MySqlConnectionFactory(connectionString));
                 services.AddSingleton<IColumnService, ColumnService>();
+                services.Scan(scan => scan.FromAssembliesOf(typeof(CategoryDAO))
+                .AddClasses(classes => classes.Where(type => type.Name.EndsWith("DAO")))
+                .AsImplementedInterfaces()
+                .WithTransientLifetime());
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            return services.BuildServiceProvider();
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
+            TLGames.Application.Services.Utils.GetProviderService.SetServiceProvider(serviceProvider);
+            return serviceProvider;
         }
     }
 }

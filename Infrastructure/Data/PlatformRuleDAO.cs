@@ -1,17 +1,14 @@
-﻿using System.Threading.Tasks;
-using TLGames.Applications.Services;
+﻿using System;
+using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class PlatformRuleDAO(IDbConnectionFactory connectionFactory) : BaseDAO<PlatformRuleModel>(connectionFactory), ISoftDeleteAsync<PlatformRuleModel>
+    internal class PlatformRuleDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+        : BaseDAO<PlatformRuleModel>(connectionFactory, colService, converter, checker, "platform_rules", "platform_rule_id", null), ISoftDeleteAsync<PlatformRuleModel>
     {
-        protected override string TableName => "platform_rules";
-
-        protected override string ColumnIdName => "platform_rule_id";
-
-
         protected override string GetInsertQuery()
         {
             return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (fee, pending_time) 
@@ -22,7 +19,7 @@ namespace TLGames.Infrastructure.Data
         {
             return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET fee = @Fee, pending_time = @PendingTime
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         protected override string DeleteByIdQuery(string colIdName)

@@ -48,7 +48,7 @@ namespace TLGames.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[GetValidColumns] Error for table '{(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}': {ex.Message}");
+                Console.WriteLine($"[GetValidColumns] Error for table '{tableName}");
                 return new();
             }
         }

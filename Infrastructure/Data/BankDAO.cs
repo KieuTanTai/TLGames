@@ -3,21 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class BankDAO(IDbConnectionFactory connectionFactory,
-                                        string tableName,
-                                        string columnIdName) : BaseDAO<BankModel>(connectionFactory, tableName, columnIdName), IGetRelativeAsync<BankModel>, ISoftDeleteAsync<BankModel>,
-                            IGetDataByEnum<BankModel>
+    internal class BankDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker) 
+        : BaseDAO<BankModel>(connectionFactory, colService, converter, checker, "banks", "bank_id", null), 
+        IGetRelativeAsync<BankModel>, ISoftDeleteAsync<BankModel>, IGetDataByEnum<BankModel>
     {
-        //protected override string TableName => "banks";
-        //protected override string ColumnIdName => "bank_id";
-
         protected override string GetInsertQuery()
         {
             return $"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (bank_name, status) VALUES(@BankName, @Status); SELECT LAST_INSERT_ID();";
@@ -27,12 +23,12 @@ namespace TLGames.Infrastructure.Data
         {
             return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET bank_name = @BankName, status = @Status     
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetQueryDataString(string colName)
         {
-            if (!_colService.IsValidColumn(TableName, colName))
+            if (!ColService.IsValidColumn(TableName, colName))
                 return "";
             return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
         }

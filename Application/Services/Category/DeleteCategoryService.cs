@@ -10,17 +10,19 @@ using TLGames.Infrastructure.Data;
 
 namespace TLGames.Application.Services.Category
 {
-    internal class DeleteCategoryService(IDbConnectionFactory connectionFactory) : IDeleteSingleKeyDataService<CategoryModel>, ISoftDeleteService //IDeleteIntegrityService<CategoryModel>
+    internal class DeleteCategoryService(IDbConnectionFactory connectionFactory,
+                                        string tableName,
+                                        string columnIdName) : IDeleteSingleKeyDataService<CategoryModel>, ISoftDeleteService //IDeleteIntegrityService<CategoryModel>
     {
         public async Task<bool> DeleteByIdAsync(string id)
         {
-            CategoryDAO categoryDAO = new(connectionFactory);
+            CategoryDAO categoryDAO = new(connectionFactory, tableName, columnIdName);
             return await categoryDAO.DeleteAsync(id);
         }
 
         public async Task<bool> DeleteByIdsAsync(IEnumerable<string> ids)
         {
-            CategoryDAO categoryDAO = new(connectionFactory);
+            CategoryDAO categoryDAO = new(connectionFactory, tableName, columnIdName);
             if (ids == null || !ids.Any())
                 return false;
             return await categoryDAO.DeleteManyAsync(ids);
@@ -30,7 +32,7 @@ namespace TLGames.Application.Services.Category
         {
             if (string.IsNullOrEmpty(id))
                 throw new ArgumentNullException(nameof(id), "category ID cannot be null or empty.");
-            CategoryDAO categoryDAO = new(connectionFactory);
+            CategoryDAO categoryDAO = new(connectionFactory, tableName, columnIdName);
             CategoryModel category = await categoryDAO.GetByIdAsync(id);
 
             if (category == null) return false;
@@ -42,7 +44,7 @@ namespace TLGames.Application.Services.Category
         {
             if (ids == null || !ids.Any())
                 throw new ArgumentNullException(nameof(ids), "Product IDs cannot be null or empty.");
-            CategoryDAO categoryDAO = new(connectionFactory);
+            CategoryDAO categoryDAO = new(connectionFactory, tableName, columnIdName);
             List<CategoryModel> categories = new();
             foreach (string id in ids)
             {

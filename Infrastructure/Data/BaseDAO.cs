@@ -6,25 +6,27 @@ using System.Data;
 using System.Threading.Tasks;
 using TLGames.Application.Services;
 using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
 
-namespace TLGames.Applications.Services
+namespace TLGames.Infrastructure.Data
 {
     public abstract class BaseDAO<T>(
         IDbConnectionFactory connectionFactory,
+        IColumnService colService,
+        IStringConverter converter,
+        IStringChecker checker,
         string tableName,
         string columnIdName,
-        string secondColumnIdName = null) : ICrudOperationsAsync<T>, IQueryOperationsAsync, IExecuteOperationsAsync where T : class
+        string secondColumnIdName = null) :IDAO<T>, ICrudOperationsAsync<T>, IQueryOperationsAsync, IExecuteOperationsAsync where T : class
     {
+        protected IDbConnectionFactory ConnectionFactory { get; } = connectionFactory;
+        protected IColumnService ColService { get; } = colService;
+        protected IStringConverter Converter { get; } = converter;
+        protected IStringChecker Checker { get; } = checker;
+
         protected string TableName { get; } = tableName;
         protected string ColumnIdName { get; } = columnIdName;
         protected string SecondColumnIdName { get; } = secondColumnIdName ?? string.Empty;
-
-#pragma warning disable CS9124 // Parameter is captured into the state of the enclosing type and its value is also used to initialize a field, property, or event.
-        protected IDbConnectionFactory _connectionFactory { get; } = connectionFactory;
-#pragma warning restore CS9124 // Parameter is captured into the state of the enclosing type and its value is also used to initialize a field, property, or event.
-        protected readonly IColumnService _colService = GetProviderService.SystemServices.GetService<IColumnService>();
-        protected readonly IStringConverter _converter = GetProviderService.SystemServices.GetService<IStringConverter>();
-        protected readonly IStringChecker _checker = GetProviderService.SystemServices.GetService<IStringChecker>();
 
         // GET ALL
         public virtual async Task<List<T>> GetAllAsync()
@@ -32,7 +34,7 @@ namespace TLGames.Applications.Services
             try
             {
                 string query = $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}";
-                using IDbConnection connection = connectionFactory.CreateConnection();
+                using IDbConnection connection = ConnectionFactory.CreateConnection();
                 IEnumerable<T> result = await connection.QueryAsync<T>(query);
                 return result.AsList();
             }
@@ -49,7 +51,7 @@ namespace TLGames.Applications.Services
             try
             {
                 string query = GetByIdQuery(ColumnIdName);
-                using IDbConnection connection = connectionFactory.CreateConnection();
+                using IDbConnection connection = ConnectionFactory.CreateConnection();
                 T result = await connection.QueryFirstOrDefaultAsync(query);
                 return result;
             }
@@ -65,7 +67,7 @@ namespace TLGames.Applications.Services
         {
             try
             {
-                using IDbConnection connection = connectionFactory.CreateConnection();
+                using IDbConnection connection = ConnectionFactory.CreateConnection();
                 using IDbTransaction transaction = connection.BeginTransaction();
                 try
                 {
@@ -91,7 +93,7 @@ namespace TLGames.Applications.Services
         {
             try
             {
-                using IDbConnection connection = connectionFactory.CreateConnection();
+                using IDbConnection connection = ConnectionFactory.CreateConnection();
                 using IDbTransaction transaction = connection.BeginTransaction();
                 try
                 {
@@ -120,7 +122,7 @@ namespace TLGames.Applications.Services
         {
             try
             {
-                using IDbConnection connection = connectionFactory.CreateConnection();
+                using IDbConnection connection = ConnectionFactory.CreateConnection();
                 using IDbTransaction transaction = connection.BeginTransaction();
                 try
                 {
@@ -147,7 +149,7 @@ namespace TLGames.Applications.Services
         {
             try
             {
-                using IDbConnection connection = connectionFactory.CreateConnection();
+                using IDbConnection connection = ConnectionFactory.CreateConnection();
                 using IDbTransaction transaction = connection.BeginTransaction();
                 try
                 {
@@ -177,7 +179,7 @@ namespace TLGames.Applications.Services
             try
             {
                 string query = DeleteByIdQuery(ColumnIdName);
-                using IDbConnection connection = connectionFactory.CreateConnection();
+                using IDbConnection connection = ConnectionFactory.CreateConnection();
                 using IDbTransaction transaction = connection.BeginTransaction();
                 try
                 {
@@ -204,7 +206,7 @@ namespace TLGames.Applications.Services
             try
             {
                 string query = DeleteByIdQuery(ColumnIdName);
-                using IDbConnection connection = connectionFactory.CreateConnection();
+                using IDbConnection connection = ConnectionFactory.CreateConnection();
                 using IDbTransaction transaction = connection.BeginTransaction();
                 try
                 {
@@ -233,7 +235,7 @@ namespace TLGames.Applications.Services
         {
             try
             {
-                using IDbConnection connection = connectionFactory.CreateConnection();
+                using IDbConnection connection = ConnectionFactory.CreateConnection();
                 IEnumerable<TResult> result = await connection.QueryAsync<TResult>(query, parameters);
                 return result.AsList();
             }
@@ -248,7 +250,7 @@ namespace TLGames.Applications.Services
         {
             try
             {
-                using IDbConnection connection = connectionFactory.CreateConnection();
+                using IDbConnection connection = ConnectionFactory.CreateConnection();
                 try
                 {
                     TResult? result = await connection.QueryFirstOrDefaultAsync(query, parameters, transaction);
@@ -273,7 +275,7 @@ namespace TLGames.Applications.Services
         {
             try
             {
-                using IDbConnection connection = connectionFactory.CreateConnection();
+                using IDbConnection connection = ConnectionFactory.CreateConnection();
                 try
                 {
                     int affectRow = await connection.ExecuteAsync(query, parameters, transaction);
@@ -296,21 +298,21 @@ namespace TLGames.Applications.Services
 
         protected virtual string GetByIdQuery(string colIdName)
         {
-            if (!_colService.IsValidColumn(TableName, colIdName))
+            if (!ColService.IsValidColumn(TableName, colIdName))
                 return "";
             return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colIdName} = @Id";
         }
 
         protected virtual string DeleteByIdQuery(string colIdName)
         {
-            if (!_colService.IsValidColumn(TableName, colIdName))
+            if (!ColService.IsValidColumn(TableName, colIdName))
                 return "";
             return $"DELETE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colIdName} = @Id";
         }
 
         protected bool IsValidStringInputDB(string input)
         {
-            if (!_checker.ContainsProblematicDbChars(input) || !_checker.IsSafeDbString(input))
+            if (Checker.ContainsProblematicDbChars(input) || !Checker.IsSafeDbString(input))
                 return false;
             return true;
         }

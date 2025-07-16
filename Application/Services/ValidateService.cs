@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
 
 namespace TLGames.Application.Services
 {
@@ -8,7 +8,7 @@ namespace TLGames.Application.Services
         protected readonly IStringChecker _checker = GetProviderService.SystemServices.GetService<IStringChecker>();
         protected bool IsValidStringInputDB(string input)
         {
-            if (!_checker.ContainsProblematicDbChars(input) || !_checker.IsSafeDbString(input))
+            if (_checker.ContainsProblematicDbChars(input) || !_checker.IsSafeDbString(input))
                 return false;
             return true;
         }

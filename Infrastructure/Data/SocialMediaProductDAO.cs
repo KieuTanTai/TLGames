@@ -3,19 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class SocialMediaProductDAO(IDbConnectionFactory connectionFactory) : BaseDAO<SocialMediaProductModel>(connectionFactory),
-                                            IGetAllByIdAsync<SocialMediaProductModel>, IGetRelativeAsync<SocialMediaProductModel>, IGetDataByEnum<SocialMediaProductModel>
+    internal class SocialMediaProductDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+        : BaseDAO<SocialMediaProductModel>(connectionFactory, colService, converter, checker, "social_media_of_products", "social_media_id", null),
+        IGetAllByIdAsync<SocialMediaProductModel>, IGetRelativeAsync<SocialMediaProductModel>, IGetDataByEnum<SocialMediaProductModel>
     {
-        protected override string TableName => "social_media_of_products";
-        protected override string ColumnIdName => "social_media_id";
-
         protected override string GetInsertQuery()
         {
             return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (product_id, social_media_type, account_name, social_media_url) 
@@ -26,12 +24,12 @@ namespace TLGames.Infrastructure.Data
         {
             return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET social_media_type = @SocialMediaType, social_media_url = @SocialMedia_Url, account_name = @AccountName
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetQueryDataString(string colName)
         {
-            if (!_colService.IsValidColumn(TableName, colName))
+            if (!ColService.IsValidColumn(TableName, colName))
                 return "";
             return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
         }

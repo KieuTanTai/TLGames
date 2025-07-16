@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
 
 namespace TLGames.Infrastructure.Services
 {

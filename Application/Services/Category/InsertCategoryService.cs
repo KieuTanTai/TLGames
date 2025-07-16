@@ -9,13 +9,15 @@ using TLGames.Infrastructure.Data;
 
 namespace TLGames.Application.Services.Category
 {
-    internal class InsertCategoryService(IDbConnectionFactory connectionFactory) : IInsertDataService<CategoryModel>
+    internal class InsertCategoryService(IDbConnectionFactory connectionFactory,
+                                        string tableName,
+                                        string columnIdName) : IInsertDataService<CategoryModel>
     {
         public async Task<int> InsertAsync(CategoryModel entity)
         {
             if (entity == null)
                 throw new ArgumentException("Category entity cannot be null.", nameof(entity));
-            CategoryDAO category = new CategoryDAO(connectionFactory);
+            CategoryDAO category = new CategoryDAO(connectionFactory, tableName, columnIdName);
             return await category.InsertAsync(entity);
         }
 
@@ -23,7 +25,7 @@ namespace TLGames.Application.Services.Category
         {
             if (entities == null || !entities.Any())
                 throw new ArgumentException("Category entities collection cannot be null or empty.", nameof(entities));
-            CategoryDAO category = new CategoryDAO(connectionFactory);
+            CategoryDAO category = new CategoryDAO(connectionFactory, tableName, columnIdName);
             return await category.InsertManyAsync(entities);
         }
     }

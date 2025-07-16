@@ -3,19 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class NewsImageDAO(IDbConnectionFactory connectionFactory) : BaseDAO<NewsImageModel>(connectionFactory), IGetAllByIdAsync<NewsImageModel>
+    internal class NewsImageDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+        : BaseDAO<NewsImageModel>(connectionFactory, colService, converter, checker, "news_images", "news_image_id", null), IGetAllByIdAsync<NewsImageModel>
     {
-        protected override string TableName => "news_images";
-
-        protected override string ColumnIdName => "news_image_id";
-
-
         protected override string GetInsertQuery()
         {
             return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (news_id, image_url) 
@@ -26,7 +22,7 @@ namespace TLGames.Infrastructure.Data
         {
             return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
                         SET image_url = @ImageUrl
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public async Task<List<NewsImageModel>> GetAllByIdAsync(string id, string colIdName)

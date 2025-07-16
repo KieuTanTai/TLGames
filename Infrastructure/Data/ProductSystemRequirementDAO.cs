@@ -3,17 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using TLGames.Applications.Services;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
+using TLGames.Core.Interfaces.IValidate;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class ProductSystemRequirementDAO(IDbConnectionFactory connectionFactory) : BaseDAO<ProductSystemRequirementModel>(connectionFactory), IGetRelativeAsync<ProductSystemRequirementModel>
+    internal class ProductSystemRequirementDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+        : BaseDAO<ProductSystemRequirementModel>(connectionFactory, colService, converter, checker, "system_requirements", "system_requirement_id", null), IGetRelativeAsync<ProductSystemRequirementModel>
     {
-        protected override string TableName => "system_requirements";
-        protected override string ColumnIdName => "system_requirement_id";
-
         protected override string GetInsertQuery()
         {
             return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (product_id, minimum_os, recommend_os, minimum_processor, recommend_processor, 
@@ -37,12 +35,12 @@ namespace TLGames.Infrastructure.Data
                  recommend_directX = @RecommendDirectX,
                  minimum_storage = @MinimumStorage,
                  recommend_storage = @RecommendStorage
-             WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{_converter.SnakeCaseToPascalCase(ColumnIdName)}";
+             WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetQueryDataString(string colName)
         {
-            if (!_colService.IsValidColumn(TableName, colName))
+            if (!ColService.IsValidColumn(TableName, colName))
                 return "";
             return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
         }
