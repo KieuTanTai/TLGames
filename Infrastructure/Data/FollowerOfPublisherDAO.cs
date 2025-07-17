@@ -7,11 +7,12 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
     public record FollowerOfPublisherItemIds(string followerId, string publisherId);
-    internal class FollowerOfPublisherDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class FollowerOfPublisherDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<FollowerOfPublisherModel>(connectionFactory, colService, converter, checker, "follower_of_publishers", "follower_id", "publisher_id"), 
         IGetAllByIdAsync<FollowerOfPublisherModel>, IGetSingleByIdsAsync<FollowerOfPublisherModel>, IGetDataByDateTime<FollowerOfPublisherModel>, IDeleteByIdsAsync
     {

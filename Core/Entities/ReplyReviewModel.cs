@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class ReplyReviewModel
+    public class ReplyReviewModel
     {
         public int ReplyId { get; private set; }
         public int ReviewId { get; private set; }

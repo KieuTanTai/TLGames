@@ -3,7 +3,7 @@ using TLGames.Core.Enums;
 
 namespace TLGames.Core.Entities
 {
-    internal class DetailCartModel
+    public class DetailCartModel
     {
         public int CartId { get; private set; }
         public int ProductId { get; private set; }

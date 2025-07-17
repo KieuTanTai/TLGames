@@ -16,12 +16,12 @@ namespace TLGames
     public partial class MainWindow : Window
     {
         private MainWindowViewModel _viewModel;
-        public MainWindow()
+        public MainWindow(MainWindowViewModel viewModel)
         {
             InitializeComponent();
-
-            _viewModel = new MainWindowViewModel();
-            this.DataContext = _viewModel;
+            _viewModel = viewModel;
+            _ = _viewModel.LoadCategoriesAsync();
+            DataContext = _viewModel;
             SetDefaultForm();
             AddEventForButtons();
         }

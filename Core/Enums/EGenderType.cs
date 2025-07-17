@@ -1,6 +1,6 @@
 ﻿namespace TLGames.Core.Enums
 {
-    internal enum EGenderType
+    public enum EGenderType
     {
         MALE,
         FEMALE,

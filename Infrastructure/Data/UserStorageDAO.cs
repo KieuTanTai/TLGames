@@ -2,10 +2,11 @@
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class UserStorageDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class UserStorageDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<ConversationParticipantModel>(connectionFactory, colService, converter, checker, "user_storages", "user_storage_id", null)
     {
         protected override string GetInsertQuery()

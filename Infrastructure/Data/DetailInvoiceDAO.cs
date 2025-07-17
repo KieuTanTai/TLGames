@@ -7,12 +7,13 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
     public record DetailInvoiceItemIds(string InvoiceId, string ProductId);
 
-    internal class DetailInvoiceDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class DetailInvoiceDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<DetailInvoiceModel>(connectionFactory, colService, converter, checker, "detail_invoices", "invoice_id", "product_id"), 
         ISoftDeleteAsync<DetailInvoiceModel>, IGetSingleByIdsAsync<DetailInvoiceModel>, IGetAllByIdAsync<DetailInvoiceModel>, IGetDataByEnum<DetailInvoiceModel>
     {

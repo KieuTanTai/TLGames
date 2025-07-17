@@ -7,10 +7,11 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class InvoiceDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class InvoiceDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<InvoiceModel>(connectionFactory, colService, converter, checker, "invoices", "invoice_id", null), 
         ISoftDeleteAsync<InvoiceModel>, IGetAllByIdAsync<InvoiceModel>, IGetDataByEnum<InvoiceModel>, IGetDataByDateTime<InvoiceModel>
     {

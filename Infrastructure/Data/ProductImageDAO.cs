@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class ProductImageDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class ProductImageDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<ProductImageDAO>(connectionFactory, colService, converter, checker, "product_images", "product_image_id", null), IGetAllByIdAsync<ProductImageModel>
     {
         protected override string GetInsertQuery()

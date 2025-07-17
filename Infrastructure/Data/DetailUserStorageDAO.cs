@@ -7,11 +7,12 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
     public record DetailUserStorageItemIds(string UserStorageId, string ProductId);
-    internal class DetailUserStorageDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class DetailUserStorageDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<ConversationParticipantModel>(connectionFactory, colService, converter, checker, "detail_user_storages", "user_storage_id", "product_id"), 
         IGetSingleByIdsAsync<DetailUserStorageModel>, IGetAllByIdAsync<DetailUserStorageModel>, IGetRelativeAsync<DetailUserStorageModel>, IGetDataByDateTime<DetailUserStorageModel>
     {

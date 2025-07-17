@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class ProductDeveloperDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class ProductDeveloperDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<ProductDeveloperModel>(connectionFactory, colService, converter, checker, "developer_of_products", "developer_id", "product_id"), 
         IGetAllByIdAsync<ProductDeveloperModel>, IGetSingleByIdsAsync<ProductDeveloperModel>, IUpdateByOldKeyAsync<ProductDeveloperModel>, IDeleteByIdsAsync
     {

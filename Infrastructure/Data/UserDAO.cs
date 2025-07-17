@@ -7,10 +7,11 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class UserDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class UserDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<UserModel>(connectionFactory, colService, converter, checker, "users", "user_id", null), 
         ISoftDeleteAsync<UserModel>, IGetAllByIdAsync<UserModel>, IGetRelativeAsync<UserModel>, IGetDataByEnum<UserModel>, IGetDataByDateTime<UserModel>
     {

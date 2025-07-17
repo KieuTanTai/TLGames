@@ -1,6 +1,6 @@
 ﻿namespace TLGames.Core.Enums
 {
-    internal enum ESocialMediaType
+    public enum ESocialMediaType
     {
         YOUTUBE,
         FACEBOOK,

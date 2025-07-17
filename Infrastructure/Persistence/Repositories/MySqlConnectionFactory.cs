@@ -5,7 +5,7 @@ using TLGames.Core.Interfaces.IData;
 
 namespace TLGames.Infrastructure.Persistence.Repositories
 {
-    internal class MySqlConnectionFactory : IDbConnectionFactory
+    public class MySqlConnectionFactory : IDbConnectionFactory
     {
         private readonly string _connectionString;
 

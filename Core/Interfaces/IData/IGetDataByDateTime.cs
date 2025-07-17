@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace TLGames.Core.Interfaces.IData
 {
-    internal interface IGetDataByDateTime<T> where T : class
+    public interface IGetDataByDateTime<T> where T : class
     {
         string GetByMonth(string colName);
         string GetByYear(string colName);

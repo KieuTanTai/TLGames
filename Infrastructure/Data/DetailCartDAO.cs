@@ -7,11 +7,12 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
     public record DetailCartItemIds(string CartId, string ProductId);
-    internal class DetailCartDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class DetailCartDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<DetailCartModel>(connectionFactory, colService, converter, checker, "detail_carts", "cart_id", "product_id"), 
         IGetAllByIdAsync<DetailCartModel>, IGetSingleByIdsAsync<DetailCartModel>, IGetDataByDateTime<DetailCartModel>, IDeleteByIdsAsync
     {

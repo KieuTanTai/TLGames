@@ -7,10 +7,11 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class SocialMediaProductDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class SocialMediaProductDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<SocialMediaProductModel>(connectionFactory, colService, converter, checker, "social_media_of_products", "social_media_id", null),
         IGetAllByIdAsync<SocialMediaProductModel>, IGetRelativeAsync<SocialMediaProductModel>, IGetDataByEnum<SocialMediaProductModel>
     {

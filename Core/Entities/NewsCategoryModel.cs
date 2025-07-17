@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class NewsCategoryModel
+    public class NewsCategoryModel
     {
         public int NewsCategory { get; private set; }
         public string CategoryName { get; private set; }

@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class WalletModel
+    public class WalletModel
     {
         public int WalletId { get; private set; }
         public int UserId { get; private set; }

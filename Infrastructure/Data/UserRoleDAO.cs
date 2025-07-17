@@ -7,10 +7,11 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class UserRoleDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class UserRoleDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<ConversationParticipantModel>(connectionFactory, colService, converter, checker, "role_of_users", "user_id", "role_id"), 
         IGetSingleByIdsAsync<UserRoleModel>, IGetAllByIdAsync<UserRoleModel>, IUpdateByOldKeyAsync<UserRoleModel>, IGetDataByDateTime<UserRoleModel>
     {

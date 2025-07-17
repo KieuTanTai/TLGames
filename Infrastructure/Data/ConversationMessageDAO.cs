@@ -7,10 +7,11 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class ConversationMessageDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class ConversationMessageDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<ConversationMessageModel>(connectionFactory, colService, converter, checker, "messages", "message_id", null),
                     IGetAllByIdAsync<ConversationMessageModel>, IGetRelativeAsync<ConversationMessageModel>, IGetDataByDateTime<ConversationMessageModel>, IGetDataByEnum<ConversationMessageModel>
     {

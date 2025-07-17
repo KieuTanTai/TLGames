@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace TLGames.Core.Interfaces.IData
 {
-    internal interface ICrudOperationsAsync<T> where T : class
+    public interface ICrudOperationsAsync<T> where T : class
     {
 #nullable enable
         Task<List<T?>> GetAllAsync();

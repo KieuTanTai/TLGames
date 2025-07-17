@@ -7,10 +7,11 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class PublisherDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class PublisherDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<PublisherModel>(connectionFactory, colService, converter, checker, "publishers", "publisher_id", null), 
         ISoftDeleteAsync<PublisherModel>, IGetRelativeAsync<PublisherModel>, IGetDataByDateTime<PublisherModel>, IGetDataByEnum<PublisherModel>
     {

@@ -7,11 +7,12 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class CategoryDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
-        : BaseDAO<CategoryModel>(connectionFactory, colService, converter, checker, "categories", "id", null),
+    public class CategoryDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+        : BaseDAO<CategoryModel>(connectionFactory, colService, converter, checker, "categories", "category_id", null),
         IGetRelativeAsync<CategoryModel>, ISoftDeleteAsync<CategoryModel>, IGetDataByEnum<CategoryModel>
     {
         public async Task<List<CategoryModel>> GetRelativeAsync(string input, string colName)
@@ -30,11 +31,6 @@ namespace TLGames.Infrastructure.Data
                 Console.WriteLine(ex.StackTrace);
                 return new();
             }
-        }
-
-        protected override string DeleteByIdQuery(string colIdName)
-        {
-            return "";
         }
 
         public async Task<bool> SoftDeleteAsync(CategoryModel entity)
@@ -81,5 +77,6 @@ namespace TLGames.Infrastructure.Data
             }
             return new();
         }
+
     }
 }

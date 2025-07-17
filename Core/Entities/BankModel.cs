@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class BankModel
+    public class BankModel
     {
         public int BankId { get; private set; }
         public string BankName { get; private set; }

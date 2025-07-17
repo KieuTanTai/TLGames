@@ -3,7 +3,7 @@ using TLGames.Core.Enums;
 
 namespace TLGames.Core.Entities
 {
-    internal class PublisherModel
+    public class PublisherModel
     {
         public int PublisherId { get; private set; }
         public int UserId { get; private set; }

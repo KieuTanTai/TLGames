@@ -1,6 +1,6 @@
 ﻿namespace TLGames.Core.Entities
 {
-    internal class ProductDescriptionImageModel
+    public class ProductDescriptionImageModel
     {
         public int DescriptionImageId { get; private set; }
         public int DescriptionId { get; private set; }

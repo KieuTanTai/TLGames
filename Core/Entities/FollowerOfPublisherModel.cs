@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class FollowerOfPublisherModel
+    public class FollowerOfPublisherModel
     {
         public int PublisherId { get; private set; }
         public int FollowerUserId { get; private set; }

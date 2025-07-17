@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
     public record ProductPublisherItemIds(string PublisherId, string ProductId);
-    internal class ProductPublisherDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class ProductPublisherDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<ProductPublisherModel>(connectionFactory, colService, converter, checker, "publisher_of_products", "publisher_id", "product_id"), 
         IGetAllByIdAsync<ProductDeveloperModel>, IGetSingleByIdsAsync<ProductDeveloperModel>, IDeleteByIdsAsync, IUpdateByOldKeyAsync<ProductCategoryModel>
     {

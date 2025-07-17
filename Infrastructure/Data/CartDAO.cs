@@ -2,11 +2,12 @@
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
     public record CartItemId(string CartId, string CustomerId);
-    internal class CartDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class CartDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<CartModel>(connectionFactory, colService, converter, checker, "carts", "cart_id", null)
     {
         protected override string GetInsertQuery()

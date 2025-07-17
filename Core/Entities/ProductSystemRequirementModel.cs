@@ -1,6 +1,6 @@
 ﻿namespace TLGames.Core.Entities
 {
-    internal class ProductSystemRequirementModel
+    public class ProductSystemRequirementModel
     {
         public int SystemRequirementId { get; private set; }
         public int ProductId { get; private set; }

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace TLGames.Core.Interfaces.IData
 {
-    internal interface IExecuteOperationsAsync
+    public interface IExecuteOperationsAsync
     {
 #nullable enable
         Task<bool> ExecuteAsync(string query, object? parameters = null, IDbTransaction? transaction = null);

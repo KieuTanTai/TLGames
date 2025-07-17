@@ -115,6 +115,7 @@
 	</ItemGroup>
 	<ItemGroup>
     <Folder Include="Application\Services\Developer\" />
+    <Folder Include="Application\Services\Product\Category\" />
     <Folder Include="Application\Services\Publisher\" />
     <Folder Include="Application\Services\Product\Description\Image\" />
     <Folder Include="Application\Services\Product\Image\" />
@@ -123,6 +124,20 @@
     <Folder Include="Application\Services\Product\SocialMedia\" />
     <Folder Include="Application\Services\Product\SystemRequirement\" />
     <Folder Include="Application\Services\Product\Version\" />
+    <Folder Include="Core\Interfaces\IServices\Conversation\" />
+    <Folder Include="Core\Interfaces\IServices\SaleEvent\" />
+    <Folder Include="Core\Interfaces\IServices\Review\" />
+    <Folder Include="Core\Interfaces\IServices\News\" />
+    <Folder Include="Core\Interfaces\IServices\Product\Description\" />
+    <Folder Include="Core\Interfaces\IServices\Product\Version\" />
+    <Folder Include="Core\Interfaces\IServices\Product\SocialMedia\" />
+    <Folder Include="Core\Interfaces\IServices\Transaction\Invoice\" />
+    <Folder Include="Core\Interfaces\IServices\User\Customer\Cart\" />
+    <Folder Include="Core\Interfaces\IServices\User\Developer\" />
+    <Folder Include="Core\Interfaces\IServices\User\Storage\" />
+    <Folder Include="Core\Interfaces\IServices\User\PaymentMethod\" />
+    <Folder Include="Core\Interfaces\IServices\User\Wallet\" />
+    <Folder Include="Core\Interfaces\IServices\User\Publisher\" />
     <Folder Include="Core\ValueObjects\" />
     <Folder Include="Others\" />
   </ItemGroup>

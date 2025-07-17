@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class SocialMediaProductModel
+    public class SocialMediaProductModel
     {
         public int SocialMediaId { get; private set; }
         public int ProductId { get; private set; }

@@ -1,6 +1,6 @@
 ﻿namespace TLGames.Core.Entities
 {
-    internal class UserStorageModel
+    public class UserStorageModel
     {
         public int UserStorageId { get; private set; }
         public int UserId { get; private set; }

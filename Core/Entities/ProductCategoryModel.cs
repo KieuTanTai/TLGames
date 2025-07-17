@@ -1,6 +1,6 @@
 ﻿namespace TLGames.Core.Entities
 {
-    internal class ProductCategoryModel
+    public class ProductCategoryModel
     {
         public int CategoryId { get; private set; }
         public int ProductId { get; private set; }

@@ -1,17 +1,13 @@
 ﻿using System;
-using TLGames.Infrastructure.Configuration;
-using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Application.Services
 {
-    static class GetProviderService
+    public static class GetProviderService
     {
-        public static IServiceProvider SystemServices { get; private set; }
-
-        public static void SetSystemServices()
+        public static IServiceProvider SystemServices { get; private set; } = default!;
+        public static void SetServiceProvider(IServiceProvider serviceProvider)
         {
-            SystemServices = InfrastructureServicesConfiguration.ConfigureServices();
-            SnakeCaseMapperInitializer.RegisterAllEntities();
+            SystemServices = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider), "IServiceProvider cannot be null.");
         }
     }
 }

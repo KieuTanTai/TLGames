@@ -1,6 +1,6 @@
 ﻿namespace TLGames.Core.Entities
 {
-    internal class InvoiceDiscountCodeModel
+    public class InvoiceDiscountCodeModel
     {
         public int InvoiceId { get; private set; }
         public string DiscountCode { get; private set; }

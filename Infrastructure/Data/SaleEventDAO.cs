@@ -7,10 +7,11 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class SaleEventDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class SaleEventDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<SaleEventModel>(connectionFactory, colService, converter, checker, "sale_events", "sale_event_id", null), 
         ISoftDeleteAsync<SaleEventModel>, IGetRelativeAsync<SaleEventModel>, IGetDataByDateTime<SaleEventModel>, IGetDataByEnum<SaleEventModel>
     {

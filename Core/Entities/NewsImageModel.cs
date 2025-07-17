@@ -1,6 +1,6 @@
 ﻿namespace TLGames.Core.Entities
 {
-    internal class NewsImageModel
+    public class NewsImageModel
     {
         public int NewsImageId { get; private set; }
         public int NewsId { get; private set; }

@@ -7,10 +7,11 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class BankDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker) 
+    public class BankDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker) 
         : BaseDAO<BankModel>(connectionFactory, colService, converter, checker, "banks", "bank_id", null), 
         IGetRelativeAsync<BankModel>, ISoftDeleteAsync<BankModel>, IGetDataByEnum<BankModel>
     {
@@ -31,11 +32,6 @@ namespace TLGames.Infrastructure.Data
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
             return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
-        }
-
-        protected override string DeleteByIdQuery(string colIdName)
-        {
-            return "";
         }
 
         public async Task<bool> SoftDeleteAsync(BankModel entity)

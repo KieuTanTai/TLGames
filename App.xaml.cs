@@ -1,9 +1,13 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using TLGames.Application.Services;
+using TLGames.Infrastructure.Configuration;
+using TLGames.Infrastructure.Persistence;
+using TLGames.WPFUI.ViewModels;
 using Wpf.Ui.Controls;
 
 namespace TLGames
@@ -30,19 +34,38 @@ namespace TLGames
         const int SW_HIDE = 0;
         const int SW_SHOW = 5;
 
+        private IServiceProvider? _rootServiceProvider;
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
             /* Test GET DATA */
-            GetProviderService.SetSystemServices();
-            GetConnectionFactoryService.GetConnectionFactory();
+            IServiceCollection services = new ServiceCollection();
+            try
+            {
+                services.AddInfrastructureServices();
+                services.AddApplicationServices();
+                services.AddViewModelServices();
+                _rootServiceProvider = services.BuildServiceProvider();
+                GetProviderService.SetServiceProvider(_rootServiceProvider);
+                SnakeCaseMapperInitializer.RegisterAllEntities();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Application startup failed: {ex.Message}", "Fatal Error", System.Windows.MessageBoxButton.OK, MessageBoxImage.Error);
+                Environment.Exit(1);
+            }
+            //GetProviderService.SetSystemServices();
+            //GetConnectionFactoryService.GetConnectionFactory();
 #if DEBUG
             AllocConsole(); // Gán console cho tiến trình hiện tại
             Console.OutputEncoding = Encoding.UTF8; // Đặt mã hóa UTF-8
             Console.InputEncoding = Encoding.UTF8;
 
 #endif
+            MainWindowViewModel mainWindowViewModel = _rootServiceProvider.GetRequiredService<MainWindowViewModel>();
+            MainWindow mainWindow = new MainWindow(mainWindowViewModel);
+            mainWindow.Show();
         }
 
         protected override void OnExit(ExitEventArgs e)

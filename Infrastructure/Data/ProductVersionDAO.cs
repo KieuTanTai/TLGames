@@ -7,10 +7,11 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class ProductVersionDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class ProductVersionDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<ProductVersionModel>(connectionFactory, colService, converter, checker, "", "", null), 
         ISoftDeleteAsync<ProductVersionModel>, IGetAllByIdAsync<ProductVersionModel>, IGetRelativeAsync<ProductVersionModel>, IGetDataByDateTime<ProductVersionModel>
     {

@@ -1,6 +1,6 @@
 ﻿namespace TLGames.Core.Enums
 {
-    internal enum EDataTimeType
+    public enum EDataTimeType
     {
         MONTH,
         YEAR,

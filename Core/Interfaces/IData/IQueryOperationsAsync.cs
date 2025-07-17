@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace TLGames.Core.Interfaces.IData
 {
-    internal interface IQueryOperationsAsync
+    public interface IQueryOperationsAsync
     {
 #nullable enable
         Task<List<TResult>?> QueryAsync<TResult>(string query, object? parameters = null);

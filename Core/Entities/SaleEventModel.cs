@@ -3,7 +3,7 @@ using TLGames.Core.Enums;
 
 namespace TLGames.Core.Entities
 {
-    internal class SaleEventModel
+    public class SaleEventModel
     {
         public int SaleEventId { get; private set; }
         public DateTime StartDate { get; private set; }

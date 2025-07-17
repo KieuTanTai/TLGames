@@ -1,14 +1,12 @@
 ﻿using Dapper;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using TLGames.Application.Services;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
 
-namespace TLGames.Infrastructure.Data
+namespace TLGames.Infrastructure.Persistence
 {
     public abstract class BaseDAO<T>(
         IDbConnectionFactory connectionFactory,
@@ -17,7 +15,7 @@ namespace TLGames.Infrastructure.Data
         IStringChecker checker,
         string tableName,
         string columnIdName,
-        string secondColumnIdName = null) :IDAO<T>, ICrudOperationsAsync<T>, IQueryOperationsAsync, IExecuteOperationsAsync where T : class
+        string secondColumnIdName = null) : IDAO<T>, ICrudOperationsAsync<T>, IQueryOperationsAsync, IExecuteOperationsAsync where T : class
     {
         protected IDbConnectionFactory ConnectionFactory { get; } = connectionFactory;
         protected IColumnService ColService { get; } = colService;

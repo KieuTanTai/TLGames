@@ -3,7 +3,7 @@ using TLGames.Core.Enums;
 
 namespace TLGames.Core.Entities
 {
-    internal class ConversationModel
+    public class ConversationModel
     {
         public int ConversationId { get; private set; }
         public int FirstUserId { get; private set; }

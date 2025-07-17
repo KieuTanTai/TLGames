@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class ConversationParticipantModel
+    public class ConversationParticipantModel
     {
         public int Id { get; private set; }
         public int ConversationId { get; private set; }

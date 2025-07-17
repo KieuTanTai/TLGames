@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class ProductDescriptionModel
+    public class ProductDescriptionModel
     {
         public int DescriptionId { get; private set; }
         public int ProductId { get; private set; }

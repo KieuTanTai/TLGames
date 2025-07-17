@@ -1,6 +1,6 @@
 ﻿namespace TLGames.Core.Enums
 {
-    internal enum EDeleteStrategy
+    public enum EDeleteStrategy
     {
         Restrict, // Ngăn chặn xóa nếu có con
         Cascade,  // Xóa cả con

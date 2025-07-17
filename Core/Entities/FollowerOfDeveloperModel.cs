@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class FollowerOfDeveloperModel
+    public class FollowerOfDeveloperModel
     {
         public int DeveloperId { get; private set; }
         public int FollowerId { get; private set; }

@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class NewsImageDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class NewsImageDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<NewsImageModel>(connectionFactory, colService, converter, checker, "news_images", "news_image_id", null), IGetAllByIdAsync<NewsImageModel>
     {
         protected override string GetInsertQuery()

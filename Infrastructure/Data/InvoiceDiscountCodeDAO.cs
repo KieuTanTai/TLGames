@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
     public record InvoiceDiscountCodeItemIds(string InvoiceId, string DiscountCodeId);
-    internal class InvoiceDiscountCodeDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class InvoiceDiscountCodeDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<InvoiceDiscountCodeModel>(connectionFactory, colService, converter, checker, "discount_code_of_invoices", "invoice_id", "discount_code"),
                                         IGetAllByIdAsync<InvoiceDiscountCodeModel>, IGetSingleByIdsAsync<InvoiceDiscountCodeModel>
     {

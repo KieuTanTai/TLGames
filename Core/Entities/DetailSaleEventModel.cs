@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class DetailSaleEventModel
+    public class DetailSaleEventModel
     {
         public int SaleEventId { get; private set; }
         public int ProductId { get; private set; }

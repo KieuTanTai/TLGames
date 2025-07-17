@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace TLGames.Core.Interfaces.IData
 {
-    internal interface IGetDataByEnum<T> where T : class
+    public interface IGetDataByEnum<T> where T : class
     {
 #nullable enable
         Task<List<T>?> GetAllByEnum<TEnum>(TEnum value, string colName) where TEnum : Enum;

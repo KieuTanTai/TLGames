@@ -1,18 +1,17 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using TLGames.Application.Services.Category;
-using TLGames.Application.Services.Utils;
 using TLGames.Core.Entities;
+using TLGames.Core.Interfaces.IServices.ICategory;
 
 namespace TLGames.WPFUI.ViewModels
 {
-    class MainWindowViewModel : BaseViewModel
+    //TODO: CONVERT IT TO DI ( ADD IT TO SERVICE PROVIDER, ADD SOME INTERFACE FOR APPLICATION SERVICE! )
+    public class MainWindowViewModel : BaseViewModel
     {
+        private readonly ICategoryManagementService<CategoryModel> _categoryManagementService;
         private ObservableCollection<CategoryModel> _categories;
-
         public ObservableCollection<CategoryModel> Categories
         {
             get => _categories;
@@ -26,10 +25,15 @@ namespace TLGames.WPFUI.ViewModels
             }
         }
 
-        public MainWindowViewModel()
+        //public MainWindowViewModel()
+        //{
+        //    Categories = new ObservableCollection<CategoryModel>();
+        //}
+
+        public MainWindowViewModel(ICategoryManagementService<CategoryModel> categoryManagementService)
         {
             Categories = new ObservableCollection<CategoryModel>();
-            //LoadCategoriesAsync();
+            _categoryManagementService = categoryManagementService;
         }
 
         public async Task LoadCategoriesAsync()
@@ -37,31 +41,17 @@ namespace TLGames.WPFUI.ViewModels
             try
             {
                 Console.WriteLine("Attempting to load categories...");
-                // **Sử dụng Service Locator để lấy CategoryManagementService**
-                // Đây là cách bạn sẽ lấy service nếu không dùng DI trong constructor của ViewModel
-                var categoryService = GetProviderService.SystemServices.GetRequiredService<CategoryManagementService>();
-
-                List<CategoryModel> categoryList = (await categoryService.GetAllCategoriesAsync()).ToList();
-
-                // Cập nhật ObservableCollection bằng cách Clear và Add từng phần tử
-                // Đây là cách đúng để làm việc với Data Binding trên ObservableCollection
+                //CategoryManagementService categoryService = GetProviderService.SystemServices.GetRequiredService<CategoryManagementService>();
+                Console.WriteLine("TEMP : " + _categoryManagementService);
+                List<CategoryModel> categoryList = await _categoryManagementService.GetAllCategoriesAsync();
                 Categories.Clear();
                 foreach (var category in categoryList)
-                {
                     Categories.Add(category);
-                }
-
                 Console.WriteLine($"Categories count after load in ViewModel: {Categories.Count}");
             }
             catch (Exception ex)
             {
-                // Xử lý lỗi: Log lỗi, hiển thị thông báo cho người dùng
                 Console.WriteLine($"Error loading categories: {ex.Message}");
-                // Ví dụ: MessageBox.Show($"Failed to load categories: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                IsBusy = false; // Tắt trạng thái bận
             }
         }
     }

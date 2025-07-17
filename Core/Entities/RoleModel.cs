@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class RoleModel
+    public class RoleModel
     {
         public int RoleId { get; private set; }
         public string RoleName { get; private set; }

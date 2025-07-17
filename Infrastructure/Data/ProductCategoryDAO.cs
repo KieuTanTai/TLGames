@@ -2,15 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
     public record ProductCategoryItemIds(string ProductId, string CategoryId);
-    internal class ProductCategoryDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class ProductCategoryDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<ProductCategoryModel>(connectionFactory, colService, converter, checker, "product_categories", "product_id", "category_id"),
         IGetAllByIdAsync<ProductCategoryModel>, IGetSingleByIdsAsync<ProductCategoryModel>, IUpdateByOldKeyAsync<ProductCategoryModel>, IDeleteByIdsAsync
     {
@@ -35,12 +37,14 @@ namespace TLGames.Infrastructure.Data
         }
         public string GetDeleteQuery()
         {
-            return $"DELETE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"DELETE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)} " +
+                    $"AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         public string GetSingleDataString()
         {
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(ColumnIdName)} " +
+                    $"AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         public async Task<List<ProductCategoryModel>> GetAllByIdAsync(string id, string colIdName)
@@ -119,6 +123,46 @@ namespace TLGames.Infrastructure.Data
                     transaction.Commit();
                     return affectRow > 0;
 
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error Commit!\n{ex.StackTrace}");
+                    transaction.Rollback();
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateAsync(IEnumerable<ProductCategoryModel> productCategoryModels, IEnumerable<string> oldKeys)
+        {
+            if (productCategoryModels == null || !productCategoryModels.Any())
+                throw new ArgumentNullException("Product categories cannot be null or empty.");
+            if (oldKeys == null || !oldKeys.Any())
+                throw new ArgumentNullException("Old keys cannot be null or empty.");
+            if (productCategoryModels.Count() != oldKeys.Count())
+                throw new ArgumentException("Product categories and old keys must have the same count.");
+            try
+            {
+                using IDbConnection connection = connectionFactory.CreateConnection();
+                using IDbTransaction transaction = connection.BeginTransaction();
+                try
+                {
+                    int affectRow = 0;
+                    int length = productCategoryModels.Count();
+                    for (int i = 0; i < length; i++)
+                    {
+                        ProductCategoryModel model = productCategoryModels.ElementAt(i);
+                        string oldKey = oldKeys.ElementAt(i);
+                        affectRow += await connection.ExecuteAsync(GetUpdateWithOldKeyString(),
+                            new { model, OldId = oldKey }, transaction);
+                    }
+                    transaction.Commit();
+                    return affectRow > 0;
                 }
                 catch (Exception ex)
                 {

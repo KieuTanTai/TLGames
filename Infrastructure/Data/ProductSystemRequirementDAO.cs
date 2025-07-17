@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class ProductSystemRequirementDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class ProductSystemRequirementDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<ProductSystemRequirementModel>(connectionFactory, colService, converter, checker, "system_requirements", "system_requirement_id", null), IGetRelativeAsync<ProductSystemRequirementModel>
     {
         protected override string GetInsertQuery()

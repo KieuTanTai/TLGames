@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
     public record ConversationItemIds(string ConversationId, string FirstUserId, string SecondUserId);
-    internal class ConversationDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class ConversationDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<ConversationModel>(connectionFactory, colService, converter, checker, "conversations", "conversation_id", null), IGetSingleByIdsAsync<ConversationModel>, IGetAllByIdAsync<ConversationModel>
     {
         protected override string GetInsertQuery()

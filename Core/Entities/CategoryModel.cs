@@ -2,8 +2,10 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class CategoryModel
+    public class CategoryModel
     {
+        private CategoryModel entity;
+
         public int CategoryId { get; private set; }
         public string CategoryName { get; private set; }
         public EActiveStatus Status { get; private set; }
@@ -14,6 +16,11 @@ namespace TLGames.Core.Entities
             CategoryId = categoryId;
             CategoryName = categoryName;
             Status = status;
+        }
+
+        public CategoryModel(CategoryModel entity)
+        {
+            this.entity = entity;
         }
 
         public void SetCategoryId(int id) { CategoryId = id; }

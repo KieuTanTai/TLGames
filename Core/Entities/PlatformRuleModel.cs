@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class PlatformRuleModel
+    public class PlatformRuleModel
     {
         public int PlatformRuleId { get; private set; }
         public decimal Fee { get; private set; }

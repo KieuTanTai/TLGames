@@ -3,10 +3,11 @@ using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class PlatformRuleDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class PlatformRuleDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<PlatformRuleModel>(connectionFactory, colService, converter, checker, "platform_rules", "platform_rule_id", null), ISoftDeleteAsync<PlatformRuleModel>
     {
         protected override string GetInsertQuery()

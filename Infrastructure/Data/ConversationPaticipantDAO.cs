@@ -7,11 +7,12 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
     public record ConversationParticipantItemIds(string ConversationId, string UserId);
-    internal class ConversationPaticipantDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class ConversationPaticipantDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<ConversationParticipantModel>(connectionFactory, colService, converter, checker, "conversation_participant", "conversation_id", "user_id"),
         IGetAllByIdAsync<ConversationParticipantModel>, IGetSingleByIdsAsync<ConversationParticipantModel>, IDeleteByIdsAsync, IGetDataByDateTime<ConversationParticipantModel>
     {

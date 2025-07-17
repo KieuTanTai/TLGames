@@ -7,10 +7,11 @@ using TLGames.Core.Entities;
 using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
+using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    internal class UserPaymentMethodDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+    public class UserPaymentMethodDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<UserPaymentMethodModel>(connectionFactory, colService, converter, checker, "user_payment_methods", "user_payment_method_id", null), 
         ISoftDeleteAsync<UserPaymentMethodModel>, IGetAllByIdAsync<UserPaymentMethodModel>, IGetRelativeAsync<UserPaymentMethodModel>, 
         IGetDataByEnum<UserPaymentMethodModel>, IGetDataByDateTime<UserPaymentMethodModel>

@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class ProductVersionModel
+    public class ProductVersionModel
     {
         public int ProductVersionId { get; private set; }
         public int ProductId { get; private set; }

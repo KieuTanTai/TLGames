@@ -2,7 +2,7 @@
 
 namespace TLGames.Core.Entities
 {
-    internal class DetailUserStorageModel
+    public class DetailUserStorageModel
     {
         public int ProductId { get; private set; }
         public int UserStorageId { get; private set; }
