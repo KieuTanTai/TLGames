@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace TLGames.Core.Interfaces.IData
 {
-    public interface IGetDataByDateTime<T> where T : class
+    public interface IGetDataByDateTimeAsync<T> where T : class
     {
         string GetByMonth(string colName);
         string GetByYear(string colName);
@@ -12,7 +12,7 @@ namespace TLGames.Core.Interfaces.IData
         string GetByDateTimeRange(string colName);
         string GetByMonthAndYear(string colName);
 #nullable enable
-        Task<List<T>?> GetAllByTime<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum;
-        Task<List<T>?> GetAllByTimeRange<TEnum>(string timeStart, string timeEnd, string colName, TEnum timeType) where TEnum : Enum;
+        Task<List<T>?> GetAllByTimeAsync<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum;
+        Task<List<T>?> GetAllByTimeRangeAsync<TEnum>(string timeStart, string timeEnd, string colName, TEnum timeType) where TEnum : Enum;
     }
 }

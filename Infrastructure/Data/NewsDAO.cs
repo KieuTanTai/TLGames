@@ -13,27 +13,27 @@ namespace TLGames.Infrastructure.Data
 {
     public class NewsDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<NewsModel>(connectionFactory, colService, converter, checker, "news", "news_id", null), 
-        IGetRelativeAsync<NewsModel>, IGetAllByIdAsync<NewsModel>, IGetDataByDateTime<NewsModel>
+        IGetRelativeAsync<NewsModel>, IGetAllByIdAsync<NewsModel>, IGetDataByDateTimeAsync<NewsModel>
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (user_id, news_cateogry_id, related_product_id, title, published_date, content, status) 
+            return $@"INSERT INTO {TableName} (user_id, news_cateogry_id, related_product_id, title, published_date, content, status) 
                         VALUES(@UserId, @NewsCategoryId, @RelatedProductId, @Title, @PublishedDate, @Content, @Status); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
+            return $@"UPDATE {TableName}
                         SET news_cateogry_id = @NewsCategoryId, related_product_id = @RelatedProductId
                         , title = @Title, published_date = @PublishedDate, content = @Content, status = @Status
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetQueryDataString(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
+            return $"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
         }
 
         public async Task<List<NewsModel>> GetRelativeAsync(string input, string colName)
@@ -75,38 +75,38 @@ namespace TLGames.Infrastructure.Data
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Month({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Month({colName}) = @Input";
         }
 
         public string GetByYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Year({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Year({colName}) = @Input";
         }
 
         public string GetByDateTime(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
         }
 
         public string GetByDateTimeRange(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public string GetByMonthAndYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
+            return $"SELECT * FROM {TableName} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
         }
 
-        public async Task<List<NewsModel>> GetAllByTimeRange<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<NewsModel>> GetAllByTimeRangeAsync<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {
@@ -133,7 +133,7 @@ namespace TLGames.Infrastructure.Data
             return new();
         }
 
-        public async Task<List<NewsModel>> GetAllByTime<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<NewsModel>> GetAllByTimeAsync<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {

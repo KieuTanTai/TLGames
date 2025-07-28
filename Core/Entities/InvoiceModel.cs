@@ -10,11 +10,11 @@ namespace TLGames.Core.Entities
         public int PaymentMethodId { get; private set; }
         public decimal TotalPrice { get; private set; }
         public DateTime InvoiceDate { get; private set; }
-        public EStatusInvoice Status { get; private set; }
+        public EInvoiceStatus Status { get; private set; }
 
         public InvoiceModel() { }
 
-        public InvoiceModel(int invoiceId, int customerId, int paymentMethodId, decimal totalPrice, DateTime invoiceDate, EStatusInvoice status)
+        public InvoiceModel(int invoiceId, int customerId, int paymentMethodId, decimal totalPrice, DateTime invoiceDate, EInvoiceStatus status)
         {
             InvoiceId = invoiceId;
             CustomerId = customerId;
@@ -29,6 +29,6 @@ namespace TLGames.Core.Entities
         public void SetPaymentMethodId(int id) { PaymentMethodId = id; }
         public void SetTotalPrice(decimal price) { TotalPrice = price; }
         public void SetInvoiceDate(DateTime date) { InvoiceDate = date; }
-        public void SetStatus(EStatusInvoice status) { Status = status; }
+        public void SetStatus(EInvoiceStatus status) { Status = status; }
     }
 }

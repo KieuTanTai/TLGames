@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
@@ -12,40 +13,61 @@ using TLGames.Infrastructure.Persistence;
 namespace TLGames.Infrastructure.Data
 {
     public class UserPaymentMethodDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
-        : BaseDAO<UserPaymentMethodModel>(connectionFactory, colService, converter, checker, "user_payment_methods", "user_payment_method_id", null), 
-        ISoftDeleteAsync<UserPaymentMethodModel>, IGetAllByIdAsync<UserPaymentMethodModel>, IGetRelativeAsync<UserPaymentMethodModel>, 
-        IGetDataByEnum<UserPaymentMethodModel>, IGetDataByDateTime<UserPaymentMethodModel>
+        : BaseDAO<UserPaymentMethodModel>(connectionFactory, colService, converter, checker, "user_payment_methods", "user_payment_method_id", null), IGetAllByIdAsync<UserPaymentMethodModel>,
+        IGetRelativeAsync<UserPaymentMethodModel>, IGetDataByEnumAsync<UserPaymentMethodModel>, IGetDataByDateTimeAsync<UserPaymentMethodModel>
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (payment_method_type, bank_id, user_id, display_name, last_four_digit, expiry_year, expiry_month, token, added_date, last_updated_date, status) 
-                        VALUES(@PaymentmethodType, @BankId, @UserId, @DisplayName, @LastFourDigit, @ExpiryYear, @ExpiryMonth, @Token, @AddedDate, @LastUpdatedDate, @Status); SELECT LAST_INSERT_ID();";
+            return $@"INSERT INTO {TableName} (payment_method_type, payment_id, user_id, display_name, last_four_digit, expiry_year, expiry_month, token, added_date, last_updated_date, status) 
+                        VALUES(@PaymentmethodType, @paymentId, @UserId, @DisplayName, @LastFourDigit, @ExpiryYear, @ExpiryMonth, @Token, @AddedDate, @LastUpdatedDate, @Status); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
-                        SET payment_method_type = @PaymentMethodtype, bank_id = @BankId, display_name = @DisplayName,
+            return $@"UPDATE {TableName}
+                        SET payment_method_type = @PaymentMethodtype, payment_id = @paymentId, display_name = @DisplayName,
                         last_four_digit = @LastFourDigit, expiry_year = @ExpiryYear, expiry_month = @ExpiryMonth, token = @Token
                         added_date = @AddedDate, last_updated_date = @LastUpDatedDate, status = @Status
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetQueryDataString(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
+            return $"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
         }
 
         protected override string DeleteByIdQuery(string colIdName)
         {
-            return "";
+            return ""; // Soft delete is handled in SoftDeleteAsync
         }
 
-        public async Task<bool> SoftDeleteAsync(UserPaymentMethodModel entity)
+        public async override Task<int> DeleteAsync(string id)
         {
-            return await UpdateAsync(entity);
+            UserPaymentMethodModel payment = await GetByIdAsync(id);
+            if (payment == null)
+                return -1;
+            payment.SetStatus(EActiveStatus.INACTIVE);
+            return await UpdateAsync(payment);
+        }
+
+        public override async Task<int> DeleteManyAsync(IEnumerable<string> ids)
+        {
+            if (ids == null || !ids.Any())
+                return -1;
+
+            List<UserPaymentMethodModel> paymentsForUpdate = new List<UserPaymentMethodModel>();
+
+            foreach (string id in ids)
+            {
+                UserPaymentMethodModel payment = await GetByIdAsync(id);
+                if (payment == null)
+                    return -1;
+                payment.SetStatus(EActiveStatus.INACTIVE);
+                paymentsForUpdate.Add(payment);
+            }
+            return await UpdateManyAsync(paymentsForUpdate);
         }
 
         public async Task<List<UserPaymentMethodModel>> GetRelativeAsync(string input, string colName)
@@ -83,7 +105,7 @@ namespace TLGames.Infrastructure.Data
         }
 
         // search by enum
-        public async Task<List<UserPaymentMethodModel>> GetAllByEnum<TEnum>(TEnum value, string colName) where TEnum : Enum
+        public async Task<List<UserPaymentMethodModel>> IGetAllByEnumAsync<TEnum>(TEnum value, string colName) where TEnum : Enum
         {
             if (value is EActiveStatus)
             {
@@ -108,38 +130,38 @@ namespace TLGames.Infrastructure.Data
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Month({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Month({colName}) = @Input";
         }
 
         public string GetByYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Year({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Year({colName}) = @Input";
         }
 
         public string GetByDateTime(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
         }
 
         public string GetByDateTimeRange(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public string GetByMonthAndYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
+            return $"SELECT * FROM {TableName} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
         }
 
-        public async Task<List<UserPaymentMethodModel>> GetAllByTimeRange<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<UserPaymentMethodModel>> GetAllByTimeRangeAsync<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {
@@ -166,7 +188,7 @@ namespace TLGames.Infrastructure.Data
             return new();
         }
 
-        public async Task<List<UserPaymentMethodModel>> GetAllByTime<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<UserPaymentMethodModel>> GetAllByTimeAsync<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {

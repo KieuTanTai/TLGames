@@ -1,7 +1,9 @@
 ﻿using Dapper;
+using MySqlX.XDevAPI.Common;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
@@ -13,31 +15,41 @@ namespace TLGames.Infrastructure.Data
 {
     public record DetailSaleEventItemIds(string SaleEventId, string ProductId);
     public class DetailSaleEventDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
-        : BaseDAO<ConversationParticipantModel>(connectionFactory, colService, converter, checker, "detail_sale_events", "sale_event_id", "product_id"), 
-        IGetAllByIdAsync<DetailSaleEventModel>, IGetSingleByIdsAsync<DetailSaleEventModel>, IGetDataByEnum<DetailSaleEventModel>
+        : BaseDAO<DetailSaleEventModel>(connectionFactory, colService, converter, checker, "detail_sale_events", "sale_event_id", "product_id"), 
+        IGetAllByIdAsync<DetailSaleEventModel>, IGetSingleByIdsAsync<DetailSaleEventModel>, IGetDataByEnumAsync<DetailSaleEventModel>
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} ({(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}, {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))}, discount_percent, discount_amount, max_discount_price, min_price_to_use) 
+            return $@"INSERT INTO {TableName} ({ColumnIdName}, {SecondColumnIdName}, discount_percent, discount_amount, max_discount_price, min_price_to_use) 
                         VALUES(@{Converter.SnakeCaseToPascalCase(ColumnIdName)}, @{Converter.SnakeCaseToPascalCase(ColumnIdName)}, @DiscountPercent, @DiscountAmount, @MaxDiscountPrice, @MinPriceToUse); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
+            return $@"UPDATE {TableName}
                         SET discount_percent = @DiscountPercent, 
                         discount_amount = @DiscountAmount, max_discount_price = @MaxDiscountPrice, min_price_to_use = @MinPriceToUse
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)} 
-                        AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+                        WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)} 
+                        AND {SecondColumnIdName} = @{Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
         public string GetSingleDataString()
         {
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"SELECT * FROM {TableName} WHERE {ColumnIdName} = {Converter.SnakeCaseToPascalCase(ColumnIdName)} AND {SecondColumnIdName} = {Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         protected override string DeleteByIdQuery(string colIdName)
         {
-            return "";
+            return ""; // Soft delete is handled in DeleteAsync
+        }
+
+        public override Task<int> DeleteAsync(string id)
+        {
+            return Task.FromResult(-1);
+        }
+
+        public override Task<int> DeleteManyAsync(IEnumerable<string> ids)
+        {
+            return Task.FromResult(-1);
         }
 
         public async Task<List<DetailSaleEventModel>> GetAllByIdAsync(string id, string colIdName)
@@ -77,7 +89,7 @@ namespace TLGames.Infrastructure.Data
         }
 
         // search by enum
-        public async Task<List<DetailSaleEventModel>> GetAllByEnum<TEnum>(TEnum value, string colName) where TEnum : Enum
+        public async Task<List<DetailSaleEventModel>> IGetAllByEnumAsync<TEnum>(TEnum value, string colName) where TEnum : Enum
         {
             if (value is EDiscountType)
             {

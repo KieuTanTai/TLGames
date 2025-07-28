@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
@@ -13,29 +14,58 @@ namespace TLGames.Infrastructure.Data
 {
     public record DetailUserStorageItemIds(string UserStorageId, string ProductId);
     public class DetailUserStorageDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
-        : BaseDAO<ConversationParticipantModel>(connectionFactory, colService, converter, checker, "detail_user_storages", "user_storage_id", "product_id"), 
-        IGetSingleByIdsAsync<DetailUserStorageModel>, IGetAllByIdAsync<DetailUserStorageModel>, IGetRelativeAsync<DetailUserStorageModel>, IGetDataByDateTime<DetailUserStorageModel>
+        : BaseDAO<DetailUserStorageModel>(connectionFactory, colService, converter, checker, "detail_user_storages", "user_storage_id", "product_id"), IGetDataByEnumAsync<DetailUserStorageModel>,
+        IGetSingleByIdsAsync<DetailUserStorageModel>, IGetAllByIdAsync<DetailUserStorageModel>, IGetRelativeAsync<DetailUserStorageModel>, IGetDataByDateTimeAsync<DetailUserStorageModel>
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} ({(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))}, {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}, last_played, play_time, is_favored, purchase_date, is_installed, installed_date) 
-                            VALUES(@{Converter.SnakeCaseToPascalCase(ColumnIdName)}, @{Converter.SnakeCaseToPascalCase(ColumnIdName)}, @LastPlayed, @PlayTime, @IsFavorated, @PurchaseDate, @IsInstalled, @InstalledDate); SELECT LAST_INSERT_ID();";
+            return $@"INSERT INTO {TableName} ({SecondColumnIdName}, 
+                            {ColumnIdName}, last_played, play_time, is_favored, purchase_date, is_installed, installed_date, status) 
+                            VALUES(@{Converter.SnakeCaseToPascalCase(ColumnIdName)}, @{Converter.SnakeCaseToPascalCase(ColumnIdName)}, @LastPlayed, @PlayTime, @IsFavorated, @PurchaseDate, @IsInstalled, @InstalledDate, @Status); 
+                            SELECT LAST_INSERT_ID();";
         }
         public string GetSingleDataString()
         {
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"SELECT * FROM {TableName} WHERE {ColumnIdName} = {Converter.SnakeCaseToPascalCase(ColumnIdName)} AND {SecondColumnIdName} = {Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
-                            SET last_played = @LastPlayed, play_time = @PlayTime, is_favored = @IsFavored, purchase_date = @PurchaseDate, is_installed = @IsInstalled, installed_date = @InstalledDate
-                            WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)} 
-                            AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
+            return $@"UPDATE {TableName}
+                            SET last_played = @LastPlayed, play_time = @PlayTime, is_favored = @IsFavored, purchase_date = @PurchaseDate, is_installed = @IsInstalled, installed_date = @InstalledDate, status = @Status
+                            WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)} 
+                            AND {SecondColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
         protected override string DeleteByIdQuery(string colIdName)
         {
-            return "";
+            return ""; // Soft delete is handled in DeleteAsync
+        }
+
+        public async override Task<int> DeleteAsync(string id)
+        {
+            DetailUserStorageModel detail = await GetByIdAsync(id);
+            if (detail == null)
+                return -1;
+            detail.SetStatus(EActiveStatus.INACTIVE);
+            return await UpdateAsync(detail);
+        }
+
+        public override async Task<int> DeleteManyAsync(IEnumerable<string> ids)
+        {
+            if (ids == null || !ids.Any())
+                return -1;
+
+            List<DetailUserStorageModel> DetailsToUpdate = new List<DetailUserStorageModel>();
+
+            foreach (string id in ids)
+            {
+                DetailUserStorageModel detail = await GetByIdAsync(id);
+                if (detail == null)
+                    return -1;
+                detail.SetStatus(EActiveStatus.INACTIVE);
+                DetailsToUpdate.Add(detail);
+            }
+            return await UpdateManyAsync(DetailsToUpdate);
         }
 
         public async Task<List<DetailUserStorageModel>> GetAllByIdAsync(string id, string colIdName)
@@ -78,7 +108,7 @@ namespace TLGames.Infrastructure.Data
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $@"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
+            return $@"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
         }
 
         public async Task<List<DetailUserStorageModel>> GetRelativeAsync(string input, string colName)
@@ -104,38 +134,38 @@ namespace TLGames.Infrastructure.Data
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Month({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Month({colName}) = @Input";
         }
 
         public string GetByYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Year({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Year({colName}) = @Input";
         }
 
         public string GetByDateTime(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
         }
 
         public string GetByDateTimeRange(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public string GetByMonthAndYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
+            return $"SELECT * FROM {TableName} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
         }
 
-        public async Task<List<DetailUserStorageModel>> GetAllByTimeRange<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<DetailUserStorageModel>> GetAllByTimeRangeAsync<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {
@@ -162,7 +192,7 @@ namespace TLGames.Infrastructure.Data
             return new();
         }
 
-        public async Task<List<DetailUserStorageModel>> GetAllByTime<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<DetailUserStorageModel>> GetAllByTimeAsync<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {
@@ -179,6 +209,26 @@ namespace TLGames.Infrastructure.Data
                 {
                     using IDbConnection connection = connectionFactory.CreateConnection();
                     IEnumerable<DetailUserStorageModel> result = await connection.QueryAsync<DetailUserStorageModel>(query, new { Input = time });
+                    return result.AsList();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.StackTrace);
+                    return new();
+                }
+            }
+            return new();
+        }
+
+        public async Task<List<DetailUserStorageModel>> IGetAllByEnumAsync<TEnum>(TEnum value, string colName) where TEnum : Enum
+        {
+            if (value is EActiveStatus)
+            {
+                try
+                {
+                    string query = GetByIdQuery(colName);
+                    using IDbConnection connection = connectionFactory.CreateConnection();
+                    IEnumerable<DetailUserStorageModel> result = await connection.QueryAsync<DetailUserStorageModel>(query, new { Id = value });
                     return result.AsList();
                 }
                 catch (Exception ex)

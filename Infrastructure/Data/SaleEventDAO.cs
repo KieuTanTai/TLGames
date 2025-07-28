@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
@@ -12,37 +13,58 @@ using TLGames.Infrastructure.Persistence;
 namespace TLGames.Infrastructure.Data
 {
     public class SaleEventDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
-        : BaseDAO<SaleEventModel>(connectionFactory, colService, converter, checker, "sale_events", "sale_event_id", null), 
-        ISoftDeleteAsync<SaleEventModel>, IGetRelativeAsync<SaleEventModel>, IGetDataByDateTime<SaleEventModel>, IGetDataByEnum<SaleEventModel>
+        : BaseDAO<SaleEventModel>(connectionFactory, colService, converter, checker, "sale_events", "sale_event_id", null), IGetRelativeAsync<SaleEventModel>, IGetDataByDateTimeAsync<SaleEventModel>, IGetDataByEnumAsync<SaleEventModel>
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (discount_code, start_date, end_date, sale_event_name, status, description) 
+            return $@"INSERT INTO {TableName} (discount_code, start_date, end_date, sale_event_name, status, description) 
                         VALUES(@DiscountCode, @StartDate, @EndDate, @SaleEventName, @Status, @Description); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
+            return $@"UPDATE {TableName}
                         SET discount_code = @DiscountCode, start_date = @StartDate, end_date = @EndDate, 
                         sale_event_name = @SaleEventName, status = @Status, description = @Description 
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
         public string GetQueryDataString(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
+            return $"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
         }
 
         protected override string DeleteByIdQuery(string colIdName)
         {
-            return "";
+            return ""; // Soft delete is handled in SoftDeleteAsync
         }
 
-        public async Task<bool> SoftDeleteAsync(SaleEventModel entity)
+        public async override Task<int> DeleteAsync(string id)
         {
-            return await UpdateAsync(entity);
+            SaleEventModel saleEvent = await GetByIdAsync(id);
+            if (saleEvent == null)
+                return -1;
+            saleEvent.SetStatus(EActiveStatus.INACTIVE);
+            return await UpdateAsync(saleEvent);
+        }
+
+        public override async Task<int> DeleteManyAsync(IEnumerable<string> ids)
+        {
+            if (ids == null || !ids.Any())
+                return -1;
+
+            List<SaleEventModel> saleEventsForUpdate = new List<SaleEventModel>();
+
+            foreach (string id in ids)
+            {
+                SaleEventModel saleEvent = await GetByIdAsync(id);
+                if (saleEvent == null)
+                    return -1;
+                saleEvent.SetStatus(EActiveStatus.INACTIVE);
+                saleEventsForUpdate.Add(saleEvent);
+            }
+            return await UpdateManyAsync(saleEventsForUpdate);
         }
 
         public async Task<List<SaleEventModel>> GetRelativeAsync(string input, string colName)
@@ -64,7 +86,7 @@ namespace TLGames.Infrastructure.Data
         }
 
         // search by enum
-        public async Task<List<SaleEventModel>> GetAllByEnum<TEnum>(TEnum value, string colName) where TEnum : Enum
+        public async Task<List<SaleEventModel>> IGetAllByEnumAsync<TEnum>(TEnum value, string colName) where TEnum : Enum
         {
             if (value is EActiveStatus)
             {
@@ -89,40 +111,40 @@ namespace TLGames.Infrastructure.Data
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Month({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Month({colName}) = @Input";
         }
 
         public string GetByYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Year({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Year({colName}) = @Input";
         }
 
         public string GetByDateTime(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
         }
 
         public string GetByDateTimeRange(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public string GetByMonthAndYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
+            return $"SELECT * FROM {TableName} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
         }
 
         public string GetByStartAndEndTime()
         {
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE start_time >= @FirstTime AND end_time < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE start_time >= @FirstTime AND end_time < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public async Task<List<SaleEventModel>> GetByStartAndEndDate<TEnum>(string firstInputTime, string secondInputTime)
@@ -142,7 +164,7 @@ namespace TLGames.Infrastructure.Data
             }
         }
 
-        public async Task<List<SaleEventModel>> GetAllByTimeRange<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<SaleEventModel>> GetAllByTimeRangeAsync<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {
@@ -169,7 +191,7 @@ namespace TLGames.Infrastructure.Data
             return new();
         }
 
-        public async Task<List<SaleEventModel>> GetAllByTime<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<SaleEventModel>> GetAllByTimeAsync<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {

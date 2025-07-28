@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
@@ -12,12 +13,12 @@ using TLGames.Infrastructure.Persistence;
 namespace TLGames.Infrastructure.Data
 {
     public class UserRoleDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
-        : BaseDAO<ConversationParticipantModel>(connectionFactory, colService, converter, checker, "role_of_users", "user_id", "role_id"), 
-        IGetSingleByIdsAsync<UserRoleModel>, IGetAllByIdAsync<UserRoleModel>, IUpdateByOldKeyAsync<UserRoleModel>, IGetDataByDateTime<UserRoleModel>
+        : BaseDAO<UserRoleModel>(connectionFactory, colService, converter, checker, "role_of_users", "user_id", "role_id"),
+        IGetSingleByIdsAsync<UserRoleModel>, IGetAllByIdAsync<UserRoleModel>, IUpdateByOldKeyAsync<UserRoleModel>, IGetDataByDateTimeAsync<UserRoleModel>
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} ({(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}, {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))}, create_date) 
+            return $@"INSERT INTO {TableName} ({ColumnIdName}, {SecondColumnIdName}, create_date) 
                         VALUES(@{Converter.SnakeCaseToPascalCase(ColumnIdName)},
                         @{Converter.SnakeCaseToPascalCase(ColumnIdName)},
                         @CreateDate); SELECT LAST_INSERT_ID();";
@@ -25,21 +26,21 @@ namespace TLGames.Infrastructure.Data
 
         protected override string GetUpdateQuery()
         {
-            return "";
+            return ""; // Soft delete is handled in SoftDeleteAsync
         }
 
         public string GetUpdateWithOldKeyString()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
-                        SET {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)},
+            return $@"UPDATE {TableName}
+                        SET {SecondColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)},
                             create_date = @CreateDate
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}
-                        AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @OldId";
+                        WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}
+                        AND {SecondColumnIdName} = @OldId";
         }
 
         public string GetSingleDataString()
         {
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"SELECT * FROM {TableName} WHERE {ColumnIdName} = {Converter.SnakeCaseToPascalCase(ColumnIdName)} AND {SecondColumnIdName} = {Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         public async Task<List<UserRoleModel>> GetAllByIdAsync(string id, string colIdName)
@@ -78,7 +79,17 @@ namespace TLGames.Infrastructure.Data
             return null;
         }
 
-        public async Task<bool> UpdateAsync(UserRoleModel entity, string oldKey)
+        public override Task<int> UpdateAsync(UserRoleModel entity)
+        {
+            return Task.FromResult(-1); // Soft delete is handled in SoftDeleteAsync
+        }
+
+        public override Task<int> UpdateManyAsync(IEnumerable<UserRoleModel> entities)
+        {
+            return Task.FromResult(-1); // Soft delete is handled in SoftDeleteAsync
+        }
+
+        public async Task<int> UpdateAsync(UserRoleModel entity, string oldKey)
         {
             try
             {
@@ -89,20 +100,54 @@ namespace TLGames.Infrastructure.Data
                     int affectRow = await connection.ExecuteAsync(GetUpdateWithOldKeyString(),
                         new { entity, OldId = oldKey }, transaction);
                     transaction.Commit();
-                    return affectRow > 0;
+                    return affectRow;
 
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error Commit!\n{ex.StackTrace}");
                     transaction.Rollback();
-                    return false;
+                    return -1;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
-                return false;
+                return -1;
+            }
+        }
+
+        // NOTE: TAKE CARE: This method is not used in the current implementation.
+        public async Task<int> UpdateAsync(IEnumerable<UserRoleModel> entities, string oldKey)
+        {
+            if (entities == null || !entities.Any())
+                return 0;
+
+            int affectedRows = 0;
+            using IDbConnection connection = connectionFactory.CreateConnection();
+            using IDbTransaction transaction = connection.BeginTransaction();
+            try
+            {
+                string query = GetUpdateWithOldKeyString();
+                foreach (UserRoleModel entity in entities)
+                {
+                    var parameters = new
+                    {
+                        entity.UserId,
+                        entity.RoleId,
+                        entity.CreateDate,
+                        OldId = oldKey
+                    };
+                    affectedRows += await connection.ExecuteAsync(query, parameters, transaction);
+                }
+                transaction.Commit();
+                return affectedRows;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error Commit!\n{ex.StackTrace}");
+                transaction.Rollback();
+                return -1;
             }
         }
 
@@ -111,38 +156,38 @@ namespace TLGames.Infrastructure.Data
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Month({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Month({colName}) = @Input";
         }
 
         public string GetByYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Year({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Year({colName}) = @Input";
         }
 
         public string GetByDateTime(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
         }
 
         public string GetByDateTimeRange(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public string GetByMonthAndYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
+            return $"SELECT * FROM {TableName} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
         }
 
-        public async Task<List<UserRoleModel>> GetAllByTimeRange<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<UserRoleModel>> GetAllByTimeRangeAsync<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {
@@ -168,7 +213,7 @@ namespace TLGames.Infrastructure.Data
             }
             return new();
         }
-        public async Task<List<UserRoleModel>> GetAllByTime<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<UserRoleModel>> GetAllByTimeAsync<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {

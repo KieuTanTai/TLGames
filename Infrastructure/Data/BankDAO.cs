@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
@@ -11,32 +12,58 @@ using TLGames.Infrastructure.Persistence;
 
 namespace TLGames.Infrastructure.Data
 {
-    public class BankDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker) 
-        : BaseDAO<BankModel>(connectionFactory, colService, converter, checker, "banks", "bank_id", null), 
-        IGetRelativeAsync<BankModel>, ISoftDeleteAsync<BankModel>, IGetDataByEnum<BankModel>
+    public class BankDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
+        : BaseDAO<BankModel>(connectionFactory, colService, converter, checker, "banks", "bank_id", null),
+        IGetRelativeAsync<BankModel>, IGetDataByEnumAsync<BankModel>
     {
         protected override string GetInsertQuery()
         {
-            return $"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (bank_name, status) VALUES(@BankName, @Status); SELECT LAST_INSERT_ID();";
+            return $"INSERT INTO {TableName} (bank_name, status) VALUES(@BankName, @Status); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
+            return $@"UPDATE {TableName}
                         SET bank_name = @BankName, status = @Status     
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
+        protected override string DeleteByIdQuery(string colIdName)
+        {
+            return ""; // Soft delete is handled in DeleteAsync
+        }
         public string GetQueryDataString(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
+            return $"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
         }
 
-        public async Task<bool> SoftDeleteAsync(BankModel entity)
+        public async override Task<int> DeleteAsync(string id)
         {
-            return await UpdateAsync(entity);
+            BankModel bank = await GetByIdAsync(id);
+            if (bank == null)
+                return -1;
+            bank.SetStatus(EActiveStatus.INACTIVE);
+            return await UpdateAsync(bank);
+        }
+
+        public override async Task<int> DeleteManyAsync(IEnumerable<string> ids)
+        {
+            if (ids == null || !ids.Any())
+                return -1;
+
+            List<BankModel> banksToUpdate = new List<BankModel>();
+
+            foreach (string id in ids)
+            {
+                BankModel bank = await GetByIdAsync(id);
+                if (bank == null)
+                    return -1;
+                bank.SetStatus(EActiveStatus.INACTIVE);
+                banksToUpdate.Add(bank);
+            }
+            return await UpdateManyAsync(banksToUpdate);
         }
 
         public async Task<List<BankModel>> GetRelativeAsync(string input, string colName)
@@ -58,7 +85,7 @@ namespace TLGames.Infrastructure.Data
         }
 
         // search by enum
-        public async Task<List<BankModel>> GetAllByEnum<TEnum>(TEnum value, string colName) where TEnum : Enum
+        public async Task<List<BankModel>> IGetAllByEnumAsync<TEnum>(TEnum value, string colName) where TEnum : Enum
         {
             if (value is EActiveStatus)
             {

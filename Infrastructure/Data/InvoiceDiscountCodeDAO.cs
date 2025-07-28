@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using TLGames.Core.Entities;
+using TLGames.Core.Enums;
 using TLGames.Core.Interfaces.IData;
 using TLGames.Core.Interfaces.IValidate;
 using TLGames.Infrastructure.Persistence;
@@ -13,27 +15,47 @@ namespace TLGames.Infrastructure.Data
     public record InvoiceDiscountCodeItemIds(string InvoiceId, string DiscountCodeId);
     public class InvoiceDiscountCodeDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<InvoiceDiscountCodeModel>(connectionFactory, colService, converter, checker, "discount_code_of_invoices", "invoice_id", "discount_code"),
-                                        IGetAllByIdAsync<InvoiceDiscountCodeModel>, IGetSingleByIdsAsync<InvoiceDiscountCodeModel>
+        IGetAllByIdAsync<InvoiceDiscountCodeModel>, IGetSingleByIdsAsync<InvoiceDiscountCodeModel>
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} ({(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}, {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))}) 
+            return $@"INSERT INTO {TableName} ({ColumnIdName}, {SecondColumnIdName}) 
                         VALUES(@{Converter.SnakeCaseToPascalCase(ColumnIdName)}, @{Converter.SnakeCaseToPascalCase(ColumnIdName)}); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"";
+            return $@""; // No update query needed for this DAO, as the discount code is typically set at creation
         }
 
         protected override string DeleteByIdQuery(string colIdName)
         {
-            return "";
+            return ""; // Soft delete is handled in DeleteAsync
+        }
+
+        public override Task<int> DeleteAsync(string id)
+        {
+            return Task.FromResult(-1);
+        }
+
+        public override Task<int> DeleteManyAsync(IEnumerable<string> ids)
+        {
+            return Task.FromResult(-1);
+        }
+
+        public override Task<int> UpdateAsync(InvoiceDiscountCodeModel entity)
+        {
+            return Task.FromResult(-1); // Soft delete is handled in SoftDeleteAsync
+        }
+
+        public override Task<int> UpdateManyAsync(IEnumerable<InvoiceDiscountCodeModel> entities)
+        {
+            return Task.FromResult(-1); // Soft delete is handled in SoftDeleteAsync
         }
 
         public string GetSingleDataString()
         {
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(ColumnIdName)} AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"SELECT * FROM {TableName} WHERE {ColumnIdName} = {Converter.SnakeCaseToPascalCase(ColumnIdName)} AND {SecondColumnIdName} = {Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         public async Task<List<InvoiceDiscountCodeModel>> GetAllByIdAsync(string id, string colIdName)

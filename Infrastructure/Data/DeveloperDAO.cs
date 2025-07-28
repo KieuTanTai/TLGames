@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
@@ -12,31 +13,53 @@ using TLGames.Infrastructure.Persistence;
 namespace TLGames.Infrastructure.Data
 {
     public class DeveloperDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
-        : BaseDAO<DeveloperModel>(connectionFactory, colService, converter, checker, "developers", "developer_id", null), 
-        ISoftDeleteAsync<DeveloperModel>, IGetRelativeAsync<DeveloperModel>, IGetDataByEnum<DeveloperModel>, IGetDataByDateTime<DeveloperModel>
+        : BaseDAO<DeveloperModel>(connectionFactory, colService, converter, checker, "developers", "developer_id", null), IGetRelativeAsync<DeveloperModel>, 
+        IGetDataByEnumAsync<DeveloperModel>, IGetDataByDateTimeAsync<DeveloperModel>
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (user_id, developer_name, became_developer_date, description, website_url, studio_phone, studio_address, studio_email, status) 
+            return $@"INSERT INTO {TableName} (user_id, developer_name, became_developer_date, description, website_url, studio_phone, studio_address, studio_email, status) 
                         VALUES(@UserId, @DeveloperName, @BecameDeveloperDate, @Description, @WebsiteUrl, @StudioPhone, @StudioAddress, @StudioEmail, @Status); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
+            return $@"UPDATE {TableName}
                         SET developer_name = @DeveloperName, became_developer_date = @BecameDeveloperDate, status = @Status
                             description = @Description, website_url = @WebsiteUrl, studio_phone = @StudioPhone, studio_address = @StudioAddress, studio_email = @StudioEmail
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         protected override string DeleteByIdQuery(string colIdName)
         {
-            return "";
+            return ""; // Soft delete is handled in DeleteAsync
         }
 
-        public async Task<bool> SoftDeleteAsync(DeveloperModel entity)
+        public async override Task<int> DeleteAsync(string id)
         {
-            return await UpdateAsync(entity);
+            DeveloperModel developer = await GetByIdAsync(id);
+            if (developer == null)
+                return -1;
+            developer.SetStatus(EUserStatus.INACTIVE);
+            return await UpdateAsync(developer);
+        }
+
+        public override async Task<int> DeleteManyAsync(IEnumerable<string> ids)
+        {
+            if (ids == null || !ids.Any())
+                return -1;
+
+            List<DeveloperModel> developersToUpdate = new List<DeveloperModel>();
+
+            foreach (string id in ids)
+            {
+                DeveloperModel developer = await GetByIdAsync(id);
+                if (developer == null)
+                    return -1;
+                developer.SetStatus(EUserStatus.INACTIVE);
+                developersToUpdate.Add(developer);
+            }
+            return await UpdateManyAsync(developersToUpdate);
         }
 
         public async Task<List<DeveloperModel>> GetRelativeAsync(string input, string colName)
@@ -61,11 +84,11 @@ namespace TLGames.Infrastructure.Data
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
+            return $"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
         }
 
         // search by enum
-        public async Task<List<DeveloperModel>> GetAllByEnum<TEnum>(TEnum value, string colName) where TEnum : Enum
+        public async Task<List<DeveloperModel>> IGetAllByEnumAsync<TEnum>(TEnum value, string colName) where TEnum : Enum
         {
             if (value is EUserStatus)
             {
@@ -90,38 +113,38 @@ namespace TLGames.Infrastructure.Data
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Month({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Month({colName}) = @Input";
         }
 
         public string GetByYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Year({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Year({colName}) = @Input";
         }
 
         public string GetByDateTime(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
         }
 
         public string GetByDateTimeRange(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public string GetByMonthAndYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
+            return $"SELECT * FROM {TableName} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
         }
 
-        public async Task<List<DeveloperModel>> GetAllByTimeRange<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<DeveloperModel>> GetAllByTimeRangeAsync<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {
@@ -148,7 +171,7 @@ namespace TLGames.Infrastructure.Data
             return new();
         }
 
-        public async Task<List<DeveloperModel>> GetAllByTime<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<DeveloperModel>> GetAllByTimeAsync<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {

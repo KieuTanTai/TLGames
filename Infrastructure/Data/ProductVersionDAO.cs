@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
@@ -12,45 +13,46 @@ using TLGames.Infrastructure.Persistence;
 namespace TLGames.Infrastructure.Data
 {
     public class ProductVersionDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
-        : BaseDAO<ProductVersionModel>(connectionFactory, colService, converter, checker, "", "", null), 
-        ISoftDeleteAsync<ProductVersionModel>, IGetAllByIdAsync<ProductVersionModel>, IGetRelativeAsync<ProductVersionModel>, IGetDataByDateTime<ProductVersionModel>
+        : BaseDAO<ProductVersionModel>(connectionFactory, colService, converter, checker, "product_versions", "product_version_id", null), IGetAllByIdAsync<ProductVersionModel>, IGetRelativeAsync<ProductVersionModel>, IGetDataByDateTimeAsync<ProductVersionModel>
     {
-        //protected override string TableName => "product_versions";
-        //protected override string ColumnIdName => "product_version_id";
-
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (product_id, executable_path, download_url, version, launch_args, size_mb, update_description)
+            return $@"INSERT INTO {TableName} (product_id, executable_path, download_url, version, launch_args, size_mb, update_description)
              VALUES(@ProductId, @ExecutablePath, @DownloadUrl, @Version, @LaunchArgs, @SizeMb, @UpdateDescription); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
+            return $@"UPDATE {TableName}
              SET executable_path = @ExecutablePath,
                  download_url = @DownloadUrl,
                  version = @Version,
                  launch_args = @LaunchArgs,
                  size_mb = @SizeMb,
                  update_description = @UpdateDescription
-             WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
+             WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetQueryDataString(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
+            return $"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
         }
 
         protected override string DeleteByIdQuery(string colIdName)
         {
-            return "";
+            return ""; // Soft delete is handled in SoftDeleteAsync
         }
 
-        public async Task<bool> SoftDeleteAsync(ProductVersionModel entity)
+        public override Task<int> DeleteAsync(string id)
         {
-            return await UpdateAsync(entity);
+            return Task.FromResult(-1); // Soft delete is handled in DeleteManyAsync
+        }
+
+        public override Task<int> DeleteManyAsync(IEnumerable<string> ids)
+        {
+            return Task.FromResult(-1); // Soft delete is handled in DeleteAsync
         }
 
         public async Task<List<ProductVersionModel>> GetRelativeAsync(string input, string colName)
@@ -92,38 +94,38 @@ namespace TLGames.Infrastructure.Data
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Month({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Month({colName}) = @Input";
         }
 
         public string GetByYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Year({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Year({colName}) = @Input";
         }
 
         public string GetByDateTime(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
         }
 
         public string GetByDateTimeRange(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public string GetByMonthAndYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
+            return $"SELECT * FROM {TableName} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
         }
 
-        public async Task<List<ProductVersionModel>> GetAllByTimeRange<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<ProductVersionModel>> GetAllByTimeRangeAsync<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {
@@ -150,7 +152,7 @@ namespace TLGames.Infrastructure.Data
             return new();
         }
 
-        public async Task<List<ProductVersionModel>> GetAllByTime<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<ProductVersionModel>> GetAllByTimeAsync<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {

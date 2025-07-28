@@ -15,15 +15,15 @@ namespace TLGames.Infrastructure.Data
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (news_id, image_url) 
+            return $@"INSERT INTO {TableName} (news_id, image_url) 
                         VALUES(@NewsId, @ImageUrl); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
+            return $@"UPDATE {TableName}
                         SET image_url = @ImageUrl
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public async Task<List<NewsImageModel>> GetAllByIdAsync(string id, string colIdName)

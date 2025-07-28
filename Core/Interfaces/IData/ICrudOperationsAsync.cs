@@ -10,10 +10,11 @@ namespace TLGames.Core.Interfaces.IData
         Task<T?> GetByIdAsync(string id);
         Task<int> InsertAsync(T entity);
         Task<int> InsertManyAsync(IEnumerable<T> entities);
-        Task<bool> UpdateAsync(T entity);
-        Task<bool> UpdateManyAsync(IEnumerable<T> entities);
-        Task<bool> DeleteAsync(string id);
-        Task<bool> DeleteManyAsync(IEnumerable<string> ids);
+        Task<int> UpdateAsync(T entity);
+        Task<int> UpdateManyAsync(IEnumerable<T> entities);
+        Task<int> DeleteAsync(string id);
+        Task<int> DeleteManyAsync(IEnumerable<string> ids);
+        Task<bool> IsExistObjectAsync(T entity);
 #nullable disable
     }
 }

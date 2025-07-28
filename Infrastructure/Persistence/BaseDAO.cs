@@ -31,7 +31,7 @@ namespace TLGames.Infrastructure.Persistence
         {
             try
             {
-                string query = $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}";
+                string query = $"SELECT * FROM {TableName}";
                 using IDbConnection connection = ConnectionFactory.CreateConnection();
                 IEnumerable<T> result = await connection.QueryAsync<T>(query);
                 return result.AsList();
@@ -116,7 +116,7 @@ namespace TLGames.Infrastructure.Persistence
         }
 
         // 2. Usage in UpdateAsync
-        public virtual async Task<bool> UpdateAsync(T entity)
+        public virtual async Task<int> UpdateAsync(T entity)
         {
             try
             {
@@ -126,24 +126,24 @@ namespace TLGames.Infrastructure.Persistence
                 {
                     int affectRow = await connection.ExecuteAsync(GetUpdateQuery(), entity, transaction);
                     transaction.Commit();
-                    return affectRow > 0;
+                    return affectRow;
 
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error Commit!\n{ex.StackTrace}");
                     transaction.Rollback();
-                    return false;
+                    return -1;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
-                return false;
+                return -1;
             }
         }
 
-        public virtual async Task<bool> UpdateManyAsync(IEnumerable<T> entities)
+        public virtual async Task<int> UpdateManyAsync(IEnumerable<T> entities)
         {
             try
             {
@@ -155,24 +155,24 @@ namespace TLGames.Infrastructure.Persistence
                     foreach (T entity in entities)
                         affectRow += await connection.ExecuteAsync(GetUpdateQuery(), entity, transaction);
                     transaction.Commit();
-                    return affectRow > 0;
+                    return affectRow;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error Commit!\n{ex.StackTrace}");
                     transaction.Rollback();
-                    return false;
+                    return -1;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
-                return false;
+                return -1;
             }
         }
 
         //DELETE ENTITY
-        public virtual async Task<bool> DeleteAsync(string id)
+        public virtual async Task<int> DeleteAsync(string id)
         {
             try
             {
@@ -183,23 +183,23 @@ namespace TLGames.Infrastructure.Persistence
                 {
                     int affectRow = await connection.ExecuteAsync(query, new { Id = id }, transaction);
                     transaction.Commit();
-                    return affectRow > 0;
+                    return affectRow;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error Commit!\n{ex.StackTrace}");
                     transaction.Rollback();
-                    return false;
+                    return -1;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
-                return false;
+                return -1;
             }
         }
 
-        public virtual async Task<bool> DeleteManyAsync(IEnumerable<string> ids)
+        public virtual async Task<int> DeleteManyAsync(IEnumerable<string> ids)
         {
             try
             {
@@ -212,19 +212,19 @@ namespace TLGames.Infrastructure.Persistence
                     foreach (string id in ids)
                         affectRow += await connection.ExecuteAsync(query, new { Id = id }, transaction);
                     transaction.Commit();
-                    return affectRow > 0;
+                    return affectRow;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error Commit!\n{ex.StackTrace}");
                     transaction.Rollback();
-                    return false;
+                    return -1;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
-                return false;
+                return -1;
             }
         }
 
@@ -294,26 +294,36 @@ namespace TLGames.Infrastructure.Persistence
             }
         }
 
+        public virtual async Task<bool> IsExistObjectAsync(T entity)
+        {
+            using IDbConnection connection = ConnectionFactory.CreateConnection();
+            string query = GetByIdQuery(ColumnIdName);
+            try
+            {
+                T? existingObject = await connection.QueryFirstOrDefaultAsync<T>(query, entity);
+                return existingObject != null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+                return false;
+            }
+        }
+
         protected virtual string GetByIdQuery(string colIdName)
         {
             if (!ColService.IsValidColumn(TableName, colIdName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colIdName} = @Id";
+            return $"SELECT * FROM {TableName} WHERE {colIdName} = @Id";
         }
 
         protected virtual string DeleteByIdQuery(string colIdName)
         {
             if (!ColService.IsValidColumn(TableName, colIdName))
                 return "";
-            return $"DELETE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colIdName} = @Id";
+            return $"DELETE FROM {TableName} WHERE {colIdName} = @Id";
         }
 
-        protected bool IsValidStringInputDB(string input)
-        {
-            if (Checker.ContainsProblematicDbChars(input) || !Checker.IsSafeDbString(input))
-                return false;
-            return true;
-        }
 
 #nullable disable
         protected abstract string GetInsertQuery();

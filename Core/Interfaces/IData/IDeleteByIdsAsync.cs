@@ -5,6 +5,6 @@ namespace TLGames.Core.Interfaces.IData
     public interface IDeleteByIdsAsync
     {
         public string GetDeleteQuery();
-        Task<bool> DeleteByIdsAsync(object keys);
+        Task<int> DeleteByIdsAsync(object keys);
     }
 }

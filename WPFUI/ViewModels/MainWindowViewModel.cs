@@ -43,7 +43,7 @@ namespace TLGames.WPFUI.ViewModels
                 Console.WriteLine("Attempting to load categories...");
                 //CategoryManagementService categoryService = GetProviderService.SystemServices.GetRequiredService<CategoryManagementService>();
                 Console.WriteLine("TEMP : " + _categoryManagementService);
-                List<CategoryModel> categoryList = await _categoryManagementService.GetAllCategoriesAsync();
+                List<CategoryModel> categoryList = await _categoryManagementService.GetAllAsync();
                 Categories.Clear();
                 foreach (var category in categoryList)
                     Categories.Add(category);

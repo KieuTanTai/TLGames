@@ -15,7 +15,7 @@ namespace TLGames.Infrastructure.Data
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (product_id, minimum_os, recommend_os, minimum_processor, recommend_processor, 
+            return $@"INSERT INTO {TableName} (product_id, minimum_os, recommend_os, minimum_processor, recommend_processor, 
                     minimum_memory, recommend_memory, minimum_graphics, recommend_graphics, minimum_directX, recommend_directX, minimum_storage, recommend_storage)
              VALUES(@ProductId, @MinimumOs, @RecommendOs, @MinimumProcessor, @RecommendProcessor, @MinimumMemory, 
                     @RecommendMemory, @MinimumGraphics, @RecommendGraphics, @MinimumDirectX, @RecommendDirectX, @MinimumStorage, @RecommendStorage); SELECT LAST_INSERT_ID();";
@@ -23,7 +23,7 @@ namespace TLGames.Infrastructure.Data
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
+            return $@"UPDATE {TableName}
              SET minimum_os = @MinimumOs,
                  recommend_os = @RecommendOs,
                  minimum_processor = @MinimumProcessor,
@@ -36,14 +36,14 @@ namespace TLGames.Infrastructure.Data
                  recommend_directX = @RecommendDirectX,
                  minimum_storage = @MinimumStorage,
                  recommend_storage = @RecommendStorage
-             WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
+             WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetQueryDataString(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
+            return $"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
         }
 
         public async Task<List<ProductSystemRequirementModel>> GetRelativeAsync(string input, string colName)

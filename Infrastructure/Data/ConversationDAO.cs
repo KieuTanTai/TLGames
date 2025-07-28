@@ -16,19 +16,19 @@ namespace TLGames.Infrastructure.Data
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}(first_user_id, second_user_id, start_time, last_message_time, status) 
+            return $@"INSERT INTO {TableName}(first_user_id, second_user_id, start_time, last_message_time, status) 
                         VALUES (@FirstUserId, @SecondUserId, StartTime, LastMessageTime, Status)";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
+            return $@"UPDATE FROM {TableName}
                         SET start_time=@StartTime, last_message_time=@LastMessageTime, status=@Status
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}=@{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {ColumnIdName}=@{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
         public string GetSingleDataString()
         {
-            return $@"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}
+            return $@"SELECT * FROM {TableName} WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}
                         AND first_user_id = @FirstUserId, second_user_id = @SecondUserId";
         }
 

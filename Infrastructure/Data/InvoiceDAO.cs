@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
@@ -12,30 +13,51 @@ using TLGames.Infrastructure.Persistence;
 namespace TLGames.Infrastructure.Data
 {
     public class InvoiceDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
-        : BaseDAO<InvoiceModel>(connectionFactory, colService, converter, checker, "invoices", "invoice_id", null), 
-        ISoftDeleteAsync<InvoiceModel>, IGetAllByIdAsync<InvoiceModel>, IGetDataByEnum<InvoiceModel>, IGetDataByDateTime<InvoiceModel>
+        : BaseDAO<InvoiceModel>(connectionFactory, colService, converter, checker, "invoices", "invoice_id", null), IGetAllByIdAsync<InvoiceModel>, IGetDataByEnumAsync<InvoiceModel>, IGetDataByDateTimeAsync<InvoiceModel>
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (customer_id, payment_method_id, total_price, invoice_date, status) 
+            return $@"INSERT INTO {TableName} (customer_id, payment_method_id, total_price, invoice_date, status) 
                         VALUES(@CustomerId, @PaymentMethodId, @TotalPrice, @InvoiceDate, @Status); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
-                        SET total_price = @TotalPrice, invoice_date = @InvoiceDate, status = @Status
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
+            return $@"UPDATE {TableName}
+                        SET status = @Status
+                        WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         protected override string DeleteByIdQuery(string colIdName)
         {
-            return "";
+            return ""; // Soft delete is handled in DeleteAsync
         }
 
-        public async Task<bool> SoftDeleteAsync(InvoiceModel entity)
+        public async override Task<int> DeleteAsync(string id)
         {
-            return await UpdateAsync(entity);
+            InvoiceModel invoice = await GetByIdAsync(id);
+            if (invoice == null)
+                return -1;
+            invoice.SetStatus(EInvoiceStatus.CANCEL);
+            return await UpdateAsync(invoice);
+        }
+
+        public override async Task<int> DeleteManyAsync(IEnumerable<string> ids)
+        {
+            if (ids == null || !ids.Any())
+                return -1;
+
+            List<InvoiceModel> invoicesToUpdate = new List<InvoiceModel>();
+
+            foreach (string id in ids)
+            {
+                InvoiceModel invoice = await GetByIdAsync(id);
+                if (invoice == null)
+                    return -1;
+                invoice.SetStatus(EInvoiceStatus.CANCEL);
+                invoicesToUpdate.Add(invoice);
+            }
+            return await UpdateManyAsync(invoicesToUpdate);
         }
 
         public async Task<List<InvoiceModel>> GetAllByIdAsync(string id, string colIdName)
@@ -55,9 +77,9 @@ namespace TLGames.Infrastructure.Data
         }
 
         // search by enum
-        public async Task<List<InvoiceModel>> GetAllByEnum<TEnum>(TEnum value, string colName) where TEnum : Enum
+        public async Task<List<InvoiceModel>> IGetAllByEnumAsync<TEnum>(TEnum value, string colName) where TEnum : Enum
         {
-            if (value is EStatusInvoice)
+            if (value is EInvoiceStatus)
             {
                 try
                 {
@@ -80,38 +102,38 @@ namespace TLGames.Infrastructure.Data
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Month({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Month({colName}) = @Input";
         }
 
         public string GetByYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE Year({colName}) = @Input";
+            return $"SELECT * FROM {TableName} WHERE Year({colName}) = @Input";
         }
 
         public string GetByDateTime(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} = DATE_ADD(@Input, INTERVAL 1 DAY);";
         }
 
         public string GetByDateTimeRange(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
+            return $"SELECT * FROM {TableName} WHERE {colName} >= @FirstTime AND {colName} < DATE_ADD(@SecondTime, INTERVAL 1 DAY);";
         }
 
         public string GetByMonthAndYear(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
+            return $"SELECT * FROM {TableName} WHERE YEAR({colName}) = @FirstTime AND MONTH({colName}) = @SecondTime;";
         }
 
-        public async Task<List<InvoiceModel>> GetAllByTimeRange<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<InvoiceModel>> GetAllByTimeRangeAsync<TEnum>(string firstInputTime, string secondInputTime, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {
@@ -138,7 +160,7 @@ namespace TLGames.Infrastructure.Data
             return new();
         }
 
-        public async Task<List<InvoiceModel>> GetAllByTime<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
+        public async Task<List<InvoiceModel>> GetAllByTimeAsync<TEnum>(string time, string colName, TEnum timeType) where TEnum : Enum
         {
             if (timeType is EDataTimeType)
             {

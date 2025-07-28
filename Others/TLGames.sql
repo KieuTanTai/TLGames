@@ -287,10 +287,14 @@ CREATE TABLE IF NOT EXISTS `detail_user_storages` (
      `purchase_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
      `is_installed` BOOLEAN NOT NULL DEFAULT 1,
      `installed_date` DATETIME DEFAULT NULL,
+     `status` ENUM('active', 'inactive') DEFAULT 'active' NOT NULL,
      PRIMARY KEY(`product_id`, `user_storage_id`),
      FOREIGN KEY(`user_storage_id`) REFERENCES user_storages(`user_storage_id`),
      FOREIGN KEY(`product_id`) REFERENCES products(`product_id`)
 ) ENGINE = InnoDB; 
+
+-- ALTER TABLE `detail_user_storages`
+-- ADD COLUMN `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active';
 
 -- middle table products - carts
 CREATE TABLE IF NOT EXISTS `detail_carts` (
@@ -410,8 +414,12 @@ CREATE TABLE IF NOT EXISTS `platform_rules` (
      `platform_rule_id` INT UNSIGNED AUTO_INCREMENT,
      `fee` DECIMAL(3, 3) NOT NULL DEFAULT 0,
      `pending_time` INT NOT NULL DEFAULT 0,
+     `status` ENUM('active', 'inactive') DEFAULT 'active' NOT NULL,
      PRIMARY KEY(`platform_rule_id`)
 ) ENGINE = InnoDB;
+
+ALTER TABLE `platform_rules`
+ADD COLUMN `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active';
 
 -- ======================================================== INVOICES ========================================================
 -- invoices

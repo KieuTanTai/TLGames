@@ -13,26 +13,26 @@ namespace TLGames.Infrastructure.Data
 {
     public class SocialMediaProductDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<SocialMediaProductModel>(connectionFactory, colService, converter, checker, "social_media_of_products", "social_media_id", null),
-        IGetAllByIdAsync<SocialMediaProductModel>, IGetRelativeAsync<SocialMediaProductModel>, IGetDataByEnum<SocialMediaProductModel>
+        IGetAllByIdAsync<SocialMediaProductModel>, IGetRelativeAsync<SocialMediaProductModel>, IGetDataByEnumAsync<SocialMediaProductModel>
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} (product_id, social_media_type, account_name, social_media_url) 
+            return $@"INSERT INTO {TableName} (product_id, social_media_type, account_name, social_media_url) 
                         VALUES(@ProductId, @SocialMediaType, @AccountName, @SocialMediaUrl); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
+            return $@"UPDATE {TableName}
                         SET social_media_type = @SocialMediaType, social_media_url = @SocialMedia_Url, account_name = @AccountName
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         public string GetQueryDataString(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
+            return $"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
         }
 
         public async Task<List<SocialMediaProductModel>> GetRelativeAsync(string input, string colName)
@@ -70,7 +70,7 @@ namespace TLGames.Infrastructure.Data
         }
 
         // search by enum
-        public async Task<List<SocialMediaProductModel>> GetAllByEnum<TEnum>(TEnum value, string colName) where TEnum : Enum
+        public async Task<List<SocialMediaProductModel>> IGetAllByEnumAsync<TEnum>(TEnum value, string colName) where TEnum : Enum
         {
             if (value is ESocialMediaType)
             {

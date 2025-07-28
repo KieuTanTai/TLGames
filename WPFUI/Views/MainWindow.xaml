@@ -41,13 +41,17 @@
             </LinearGradientBrush>
         </Border.Background>
         <Grid x:Name="GMainContainer" Margin="0,0,-2,-2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="537*"/>
+                <ColumnDefinition Width="103*"/>
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="68"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <Grid x:Name="GHeaderForm" Grid.Row="0" >
+            <Grid x:Name="GHeaderForm" Grid.Row="0" Grid.ColumnSpan="2" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
@@ -121,7 +125,7 @@
                 </StackPanel>
             </Grid>
 
-            <StackPanel x:Name="SPSupHeader" Grid.Row="1" Height="50" VerticalAlignment="Center">
+            <StackPanel x:Name="SPSupHeader" Grid.Row="1" Height="50" VerticalAlignment="Center" Grid.ColumnSpan="2">
                 <Grid x:Name="GSupHeaderContainer" Height="{Binding ActualHeight, ElementName=SPSupHeader, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=SPSupHeader, Mode=OneWay}">
                     <Border x:Name="BStackFuncs" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center" Height="40" Padding="10,0,10,0" CornerRadius="6,6,6,6">
                         <Border.Background>
@@ -171,163 +175,395 @@
                     </Border>
                 </Grid>
             </StackPanel>
-            <Grid x:Name="GMainContent" Grid.Row="2" Margin="10,0,10,10">
+            <Grid x:Name="GMainContent" Margin="10,0,10,10" Grid.Row="2" Grid.ColumnSpan="2">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="42*"/>
-                    <ColumnDefinition Width="295*"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="300"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel x:Name="SPSidebarControl">
-                    <Border x:Name="BSidebar" BorderBrush="White">
-                        <Grid x:Name="GSidebarContainer" Width="237">
-                            <WrapPanel
-                                Width="{Binding ActualWidth, ElementName=GSidebarContainer, Mode=OneWay}" Orientation="Vertical" x:Name="WPRecentlyViewContainer" VerticalAlignment="Top" HorizontalAlignment="Left">
-                                <ui:CardAction x:Name="CACertentlyViewTitle" Foreground="White" Content="Recently View" VerticalAlignment="Center" Width="{Binding ActualWidth, ElementName=WPRecentlyViewContainer, Mode=OneWay}"/>
-                                <ListBox x:Name="LBRecentlyView" ItemsSource="{Binding Categories}" d:ItemsSource="{d:SampleData ItemCount=5}" Width="{Binding ActualWidth, ElementName=WPRecentlyViewContainer, Mode=OneWay}" Height="92" ScrollViewer.VerticalScrollBarVisibility="Hidden">
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type local1:CategoryModel}">
-                                            <Border Margin="2" Padding="5" BorderThickness="0,0,0,1" BorderBrush="White">
-                                                <StackPanel Orientation="Horizontal" Width="185">
-                                                    <TextBlock Text="{Binding CategoryId}" FontWeight="Bold" Foreground="Red"/>
-                                                    <TextBlock Text="{Binding CategoryName}" Margin="10,0,0,0" Foreground="Red"/>
-                                                    <TextBlock Text="{Binding Status}" Margin="10,0,0,0" Foreground="Red"/>
-                                                </StackPanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                            </WrapPanel>
-                            <WrapPanel
-                                Orientation="Vertical" x:Name="WPYourTagsContainer" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,140,0,0" Width="{Binding ActualWidth, ElementName=GSidebarContainer, Mode=OneWay}">
-                                <ui:CardAction x:Name="CAYourTagTitle"
-                                    Content="Your Tags" Foreground="White" Margin="0,0,0,5" VerticalAlignment="Center" Width="{Binding ActualWidth, ElementName=WPYourTagsContainer, Mode=OneWay}"/>
-                                <ListBox x:Name="LBYourTag" ItemsSource="{Binding Categories}" d:ItemsSource="{d:SampleData ItemCount=5}" Width="{Binding ActualWidth, ElementName=WPRecentlyViewContainer, Mode=OneWay}" Height="92" ScrollViewer.VerticalScrollBarVisibility="Hidden">
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type local1:CategoryModel}">
-                                            <Border Margin="2" Padding="5" BorderThickness="0,0,0,1" BorderBrush="White">
-                                                <StackPanel Orientation="Horizontal" Width="185">
-                                                    <TextBlock Text="{Binding CategoryId}" FontWeight="Bold" Foreground="Red"/>
-                                                    <TextBlock Text="{Binding CategoryName}" Margin="10,0,0,0" Foreground="Red"/>
-                                                    <TextBlock Text="{Binding Status}" Margin="10,0,0,0" Foreground="Red"/>
-                                                </StackPanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                            </WrapPanel>
-                            <WrapPanel
-                                Orientation="Vertical" x:Name="WPRecommenedContainer" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,280,0,0" Width="{Binding ActualWidth, ElementName=SPSidebarControl, Mode=OneWay}">
-                                <ui:CardAction x:Name="CARecommendTitle"
-                                    Content="Recommend" Foreground="White" Margin="0,0,0,5" VerticalAlignment="Center" Width="{Binding ActualWidth, ElementName=WPRecommenedContainer, Mode=OneWay}"/>
-                                <ListBox x:Name="LBReccommend" ItemsSource="{Binding Categories}" d:ItemsSource="{d:SampleData ItemCount=5}" Width="{Binding ActualWidth, ElementName=WPRecentlyViewContainer, Mode=OneWay}" Height="92" ScrollViewer.VerticalScrollBarVisibility="Hidden">
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type local1:CategoryModel}">
-                                            <Border Margin="2" Padding="5" BorderThickness="0,0,0,1" BorderBrush="White">
-                                                <StackPanel Orientation="Horizontal" Width="185">
-                                                    <TextBlock Text="{Binding CategoryId}" FontWeight="Bold" Foreground="Red"/>
-                                                    <TextBlock Text="{Binding CategoryName}" Margin="10,0,0,0" Foreground="Red"/>
-                                                    <TextBlock Text="{Binding Status}" Margin="10,0,0,0" Foreground="Red"/>
-                                                </StackPanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                            </WrapPanel>
-                            <WrapPanel
-                                Orientation="Vertical" x:Name="WPBrowseCategoriesContainer" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,420,0,0" Width="{Binding ActualWidth, ElementName=GSidebarContainer, Mode=OneWay}">
-                                <ui:CardAction x:Name="CABrowseCategoryTitle"
-                                    Content="Browse Category" Foreground="White" Margin="0,0,0,5" Width="{Binding ActualWidth, ElementName=WPBrowseCategoriesContainer, Mode=OneWay}"/>
-                                <ListBox x:Name="LBBrowseCategory" ItemsSource="{Binding Categories}" d:ItemsSource="{d:SampleData ItemCount=5}" Width="{Binding ActualWidth, ElementName=WPRecentlyViewContainer, Mode=OneWay}" Height="92" ScrollViewer.VerticalScrollBarVisibility="Hidden">
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type local1:CategoryModel}">
-                                            <Border Margin="2" Padding="5" BorderThickness="0,0,0,1" BorderBrush="White">
-                                                <StackPanel Orientation="Horizontal" Width="185">
-                                                    <TextBlock Text="{Binding CategoryId}" FontWeight="Bold" Foreground="Red"/>
-                                                    <TextBlock Text="{Binding CategoryName}" Margin="10,0,0,0" Foreground="Red"/>
-                                                    <TextBlock Text="{Binding Status}" Margin="10,0,0,0" Foreground="Red"/>
-                                                </StackPanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                            </WrapPanel>
-                            <WrapPanel
-                                Orientation="Vertical" x:Name="WPBrowseByGenreContainer" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,560,0,0" Width="{Binding ActualWidth, ElementName=GSidebarContainer, Mode=OneWay}">
-                                <ui:CardAction x:Name="CABrowseByGenreTitle"
-                                    Background="#00000000" Margin="0,0,0,5" Foreground="White" Content="Browse By Genres" VerticalAlignment="Center" Width="{Binding ActualWidth, ElementName=WPBrowseByGenreContainer, Mode=OneWay}"/>
-                                <ListBox x:Name="LBBrowseByGenre" ItemsSource="{Binding Categories}" d:ItemsSource="{d:SampleData ItemCount=5}" Width="{Binding ActualWidth, ElementName=WPRecentlyViewContainer, Mode=OneWay}" Height="92" ScrollViewer.VerticalScrollBarVisibility="Hidden">
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type local1:CategoryModel}">
-                                            <Border Margin="2" Padding="5" BorderThickness="0,0,0,1" BorderBrush="White">
-                                                <StackPanel Orientation="Horizontal" Width="185">
-                                                    <TextBlock Text="{Binding CategoryId}" FontWeight="Bold" Foreground="Red"/>
-                                                    <TextBlock Text="{Binding CategoryName}" Margin="10,0,0,0" Foreground="Red"/>
-                                                    <TextBlock Text="{Binding Status}" Margin="10,0,0,0" Foreground="Red"/>
-                                                </StackPanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                            </WrapPanel>
-                        </Grid>
-                    </Border>
-                </StackPanel>
-                <Grid x:Name="GListProductContainer" Margin="0,0,0,10" Width="1665" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
+
+                <!-- Sidebar - Steam Style -->
+                <Border Grid.Column="0" Background="#1b2838" BorderBrush="#2a475e" 
+                    BorderThickness="1" CornerRadius="5" Margin="0,0,10,0">
+                    <StackPanel Margin="10">
+                        <!-- Navigation Buttons -->
+                        <Button Content="New &amp; Trending" Style="{StaticResource ActiveButtonStyle}"/>
+                        <Button Content="Top Sellers" Style="{StaticResource SteamButtonStyle}"/>
+                        <Button Content="Popular Upcoming" Style="{StaticResource SteamButtonStyle}"/>
+                        <Button Content="Specials" Style="{StaticResource SteamButtonStyle}"/>
+                        <Button Content="Trending Free" Style="{StaticResource SteamButtonStyle}"/>
+
+                        <Separator Background="#2a475e" Margin="0,10" Height="1"/>
+
+                        <!-- Browse Categories -->
+                        <TextBlock Text="Browse by genre" Foreground="#8f98a0" FontSize="11" Margin="0,10,0,5"/>
+                        <Button Content="Action" Style="{StaticResource SteamButtonStyle}"/>
+                        <Button Content="Adventure" Style="{StaticResource SteamButtonStyle}"/>
+                        <Button Content="Strategy" Style="{StaticResource SteamButtonStyle}"/>
+                        <Button Content="RPG" Style="{StaticResource SteamButtonStyle}"/>
+                        <Button Content="Simulation" Style="{StaticResource SteamButtonStyle}"/>
+                        <Button Content="Sports" Style="{StaticResource SteamButtonStyle}"/>
+                        <Button Content="Racing" Style="{StaticResource SteamButtonStyle}"/>
+                        <Button Content="Family Friendly" Style="{StaticResource SteamButtonStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Main Content Area -->
+                <Grid x:Name="GListProductContainer" Grid.Column="1" Margin="0,0,10,0">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="2*"/>
-                        <RowDefinition Height="5*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <ScrollViewer x:Name="SVMainFormProducts" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,50" CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Hidden">
-                        <UniformGrid x:Name="UGMainContainer" Columns="4" Margin="20,0,20,0" Grid.Row="1" Height="Auto" VerticalAlignment="Top">
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <controls:ProductCardUserControl ImageSource="/WPFUI/Resources/images/icons/other_icons/sach-thieu-nhi.jpg" ProductName="Sách thiếu nhi A" ProductPrice="125000.000" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                        </UniformGrid>
-                    </ScrollViewer>
-                    <Grid x:Name="GAdsContainer">
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="7*"/>
-                            <ColumnDefinition Width="3*"/>
-                        </Grid.ColumnDefinitions>
-                        <WrapPanel x:Name="WPMainAds" Grid.RowSpan="2" Margin="30,0,20,0">
-                            <Image Height="{Binding ActualHeight, ElementName=WPMainAds, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=WPMainAds, Mode=OneWay}" Source="/WPFUI/Resources/images/icons/web_logo/light-novel-world.png" Margin="0,0,0,-2"/>
-                        </WrapPanel>
-                        <WrapPanel x:Name="WPFirstMiniAds" Grid.Column="1" HorizontalAlignment="Left" Width="424">
-                            <Image Height="{Binding ActualHeight, ElementName=WPFirstMiniAds, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=WPFirstMiniAds, Mode=OneWay}" Source="/WPFUI/Resources/images/icons/web_logo/32-daily-ui-logo-large.png" Margin="0,0,0,10"/>
-                        </WrapPanel>
-                        <WrapPanel x:Name="WPSecondMiniAds" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Width="424">
-                            <Image Height="{Binding ActualHeight, ElementName=WPSecondMiniAds, Mode=OneWay}" Width="{Binding ActualWidth, ElementName=WPSecondMiniAds, Mode=OneWay}" Source="/WPFUI/Resources/images/icons/payment_methods/vnpay_logo.png" Margin="0,10,0,0"/>
-                        </WrapPanel>
-                    </Grid>
-                </Grid>
-            </Grid>
+                    <!-- Banner/Featured Section -->
+                    <Border x:Name="BMainEvent" Grid.Row="0" Background="#2a475e" CornerRadius="5" Margin="0,0,0,10" Height="200">
+                        <Grid x:Name="GMainEventContainer">
+                            <Rectangle Opacity="0.8">
+                                <Rectangle.Fill>
+                                    <LinearGradientBrush EndPoint="0.5,2" StartPoint="0.5,0">
+                                        <GradientStop Color="Black"/>
+                                        <GradientStop Color="#FFC2CBFF" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <StackPanel x:Name="SPRecommend" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="20">
+                                <TextBlock x:Name="TextRecommend" Text="Featured &amp; Recommended" FontSize="24" FontWeight="Bold" Foreground="White"/>
+                                <TextBlock Text="Special offers and great games" FontSize="14" Foreground="#b8b6b4"/>
+                            </StackPanel>
+                            <StackPanel x:Name="SPDealLabel" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="20">
+                                <Border Background="#4c6b22" CornerRadius="3" Padding="8,4">
+                                    <TextBlock Text="WEEKEND DEAL" FontSize="12" Foreground="White" FontWeight="Bold"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
-            <controls:ResizeableBorderUserControl Grid.RowSpan="3" Margin="0,0,7,0" d:IsHidden="True"/>
+                    <!-- Product List -->
+                    <ScrollViewer x:Name="SVListProduct" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel x:Name="ProductListContainer">
+
+                            <!-- Product 1: Prison Escape Simulator -->
+                            <Border Style="{StaticResource ProductItemStyle}">
+                                <Grid Height="69">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="184"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0" Background="#2a475e">
+                                        <TextBlock Text="GAME IMAGE" FontSize="12" Foreground="#8f98a0" 
+                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="10,8,10,8" VerticalAlignment="Center">
+                                        <TextBlock Text="Prison Escape Simulator: Dig Out" FontSize="14" FontWeight="SemiBold" 
+                                            Foreground="White" TextTrimming="CharacterEllipsis"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                            <Border Style="{StaticResource DiscountBadgeStyle}">
+                                                <TextBlock Text="-15%" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                                            </Border>
+                                            <TextBlock Text="Simulation, Exploration, Life Sim, Crime" 
+                                                FontSize="11" Foreground="#8f98a0" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                        <TextBlock Text="25 Jul, 2025" FontSize="10" Foreground="#626366" Margin="0,2,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Margin="15,8,15,8" VerticalAlignment="Center">
+                                        <TextBlock Text="255.500₫" Style="{StaticResource OriginalPriceStyle}"/>
+                                        <TextBlock Text="74.500₫" Style="{StaticResource SalePriceStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Product 2: No Sleep For Kaname Date -->
+                            <Border Style="{StaticResource ProductItemStyle}">
+                                <Grid Height="69">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="184"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0" Background="#2a475e">
+                                        <TextBlock Text="GAME IMAGE" FontSize="12" Foreground="#8f98a0" 
+                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="10,8,10,8" VerticalAlignment="Center">
+                                        <TextBlock Text="No Sleep For Kaname Date - From AI: THE S" FontSize="14" FontWeight="SemiBold" 
+                                            Foreground="White" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="Adventure, Visual Novel, Interactive Fiction, Choose Your Own Adventure" 
+                                            FontSize="11" Foreground="#8f98a0" Margin="0,2,0,0"/>
+                                        <TextBlock Text="25 Jul, 2025" FontSize="10" Foreground="#626366" Margin="0,2,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Margin="15,8,15,8" VerticalAlignment="Center">
+                                        <TextBlock Text="470.000₫" Style="{StaticResource RegularPriceStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Product 3: Let Them Trade -->
+                            <Border Style="{StaticResource ProductItemStyle}">
+                                <Grid Height="69">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="184"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0" Background="#2a475e">
+                                        <TextBlock Text="GAME IMAGE" FontSize="12" Foreground="#8f98a0" 
+                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="10,8,10,8" VerticalAlignment="Center">
+                                        <TextBlock Text="Let Them Trade" FontSize="14" FontWeight="SemiBold" 
+                                            Foreground="White" TextTrimming="CharacterEllipsis"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                            <Border Style="{StaticResource DiscountBadgeStyle}">
+                                                <TextBlock Text="-26%" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                                            </Border>
+                                            <TextBlock Text="City Builder, Relaxing, Resource Management, Real Time Tactics" 
+                                                FontSize="11" Foreground="#8f98a0" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                        <TextBlock Text="24 Jul, 2025" FontSize="10" Foreground="#626366" Margin="0,2,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Margin="15,8,15,8" VerticalAlignment="Center">
+                                        <TextBlock Text="255.500₫" Style="{StaticResource OriginalPriceStyle}"/>
+                                        <TextBlock Text="188.000₫" Style="{StaticResource SalePriceStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Product 4: The Great Villainess -->
+                            <Border Style="{StaticResource ProductItemStyle}">
+                                <Grid Height="69">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="184"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0" Background="#2a475e">
+                                        <TextBlock Text="GAME IMAGE" FontSize="12" Foreground="#8f98a0" 
+                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="10,8,10,8" VerticalAlignment="Center">
+                                        <TextBlock Text="The Great Villainess: Strategy of Lily" FontSize="14" FontWeight="SemiBold" 
+                                            Foreground="White" TextTrimming="CharacterEllipsis"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                            <Border Style="{StaticResource DiscountBadgeStyle}">
+                                                <TextBlock Text="-10%" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                                            </Border>
+                                            <TextBlock Text="Turn-Based Tactics, Tactical RPG, Female Protagonist" 
+                                                FontSize="11" Foreground="#8f98a0" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                        <TextBlock Text="24 Jul, 2025" FontSize="10" Foreground="#626366" Margin="0,2,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Margin="15,8,15,8" VerticalAlignment="Center">
+                                        <TextBlock Text="385.000₫" Style="{StaticResource OriginalPriceStyle}"/>
+                                        <TextBlock Text="346.500₫" Style="{StaticResource SalePriceStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Product 5: SUPERVIVE -->
+                            <Border Style="{StaticResource ProductItemStyle}">
+                                <Grid Height="69">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="184"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0" Background="#2a475e">
+                                        <TextBlock Text="GAME IMAGE" FontSize="12" Foreground="#8f98a0" 
+                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="10,8,10,8" VerticalAlignment="Center">
+                                        <TextBlock Text="SUPERVIVE" FontSize="14" FontWeight="SemiBold" 
+                                            Foreground="White" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="Battle Royale, MOBA, Hero Shooter, PvP" 
+                                            FontSize="11" Foreground="#8f98a0" Margin="0,2,0,0"/>
+                                        <TextBlock Text="24 Jul, 2025" FontSize="10" Foreground="#626366" Margin="0,2,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Margin="15,8,15,8" VerticalAlignment="Center">
+                                        <Border Background="#5c7e10" CornerRadius="3" Padding="8,4">
+                                            <TextBlock Text="Free" FontSize="14" Foreground="White" FontWeight="Bold"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Product 6: Wheel World -->
+                            <Border Style="{StaticResource ProductItemStyle}">
+                                <Grid Height="69">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="184"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0" Background="#2a475e">
+                                        <TextBlock Text="GAME IMAGE" FontSize="12" Foreground="#8f98a0" 
+                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="10,8,10,8" VerticalAlignment="Center">
+                                        <TextBlock Text="Wheel World" FontSize="14" FontWeight="SemiBold" 
+                                            Foreground="White" TextTrimming="CharacterEllipsis"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                            <Border Style="{StaticResource DiscountBadgeStyle}">
+                                                <TextBlock Text="-10%" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                                            </Border>
+                                            <TextBlock Text="Adventure, Sports, Racing, Bikes" 
+                                                FontSize="11" Foreground="#8f98a0" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                        <TextBlock Text="23 Jul, 2025" FontSize="10" Foreground="#626366" Margin="0,2,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Margin="15,8,15,8" VerticalAlignment="Center">
+                                        <TextBlock Text="250.000₫" Style="{StaticResource OriginalPriceStyle}"/>
+                                        <TextBlock Text="225.000₫" Style="{StaticResource SalePriceStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Product 7: Animal Shelter 2 -->
+                            <Border Style="{StaticResource ProductItemStyle}">
+                                <Grid Height="69">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="184"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0" Background="#2a475e">
+                                        <TextBlock Text="GAME IMAGE" FontSize="12" Foreground="#8f98a0" 
+                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="10,8,10,8" VerticalAlignment="Center">
+                                        <TextBlock Text="Animal Shelter 2" FontSize="14" FontWeight="SemiBold" 
+                                            Foreground="White" TextTrimming="CharacterEllipsis"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                            <Border Style="{StaticResource DiscountBadgeStyle}">
+                                                <TextBlock Text="-29%" FontSize="10" Foreground="White" FontWeight="Bold"/>
+                                            </Border>
+                                            <TextBlock Text="Simulation, Family Friendly, Multiplayer, Cute" 
+                                                FontSize="11" Foreground="#8f98a0" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                        <TextBlock Text="23 Jul, 2025" FontSize="10" Foreground="#626366" Margin="0,2,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Margin="15,8,15,8" VerticalAlignment="Center">
+                                        <TextBlock Text="361.000₫" Style="{StaticResource OriginalPriceStyle}"/>
+                                        <TextBlock Text="256.500₫" Style="{StaticResource SalePriceStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+
+                <!-- Right Panel - Game Details (Static for now) -->
+                <Border x:Name="BRightPanel" Grid.Column="2" Background="#1e2329" BorderBrush="#2a475e" 
+                    BorderThickness="1" CornerRadius="5">
+                    <StackPanel x:Name="SPDetailProductContainer" Margin="15">
+                        <TextBlock x:Name="TextProductName" Text="Prison Escape Simulator: Dig Out" 
+                            FontSize="16" FontWeight="Bold" Foreground="White" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                        <!-- Screenshot Gallery -->
+                        <ScrollViewer x:Name="SVListProductImage" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Height="120" Margin="0,0,0,10">
+                            <StackPanel x:Name="SPProductImage" Orientation="Horizontal" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                <Border Width="160" Height="90" Margin="0,0,5,0" Background="#2a475e" CornerRadius="3">
+                                    <TextBlock Text="Screenshot 1" FontSize="10" Foreground="#8f98a0" 
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Width="160" Height="90" Margin="0,0,5,0" Background="#2a475e" CornerRadius="3">
+                                    <TextBlock Text="Screenshot 2" FontSize="10" Foreground="#8f98a0" 
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Width="160" Height="90" Margin="0,0,5,0" Background="#2a475e" CornerRadius="3">
+                                    <TextBlock Text="Screenshot 3" FontSize="10" Foreground="#8f98a0" 
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- User Reviews -->
+                        <TextBlock x:Name="TextUserReview" Text="User Reviews:" FontSize="12" FontWeight="SemiBold" Foreground="#8f98a0" Margin="0,0,0,5"/>
+                        <StackPanel x:Name="SPProductRate" Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="Very Positive" FontSize="12" Foreground="#66c0f4"/>
+                            <TextBlock Text=" (1,234 reviews)" FontSize="12" Foreground="#8f98a0"/>
+                        </StackPanel>
+
+                        <!-- Genre -->
+                        <TextBlock x:Name="TextProductGenreLabel" Text="Genre:" FontSize="12" FontWeight="SemiBold" Foreground="#8f98a0" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="TextProductGenre" Text="Simulation, Exploration, Life Sim, Crime" 
+                            FontSize="12" Foreground="White" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                        <!-- Release Date -->
+                        <TextBlock x:Name="TextReleaseDateLabel" Text="Release Date:" FontSize="12" FontWeight="SemiBold" Foreground="#8f98a0" Margin="0,0,0,5"/>
+                        <TextBlock x:Name="TextReleaseDate" Text="25 Jul, 2025" FontSize="12" Foreground="White" Margin="0,0,0,15"/>
+
+                        <!-- Price -->
+                        <Border x:Name="BProductPrice" CornerRadius="3" Padding="8">
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="0.5,2" StartPoint="0.5,-1" SpreadMethod="Pad">
+                                    <GradientStop Color="Black"/>
+                                    <GradientStop Color="#FFC2CBFF" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel x:Name="SPProductPriceContainer">
+                                <StackPanel x:Name="SPProductDiscountPrice" Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Border x:Name="BSaleValueLabel" Background="#4c6b22" CornerRadius="2" Padding="4,2" Margin="0,0,5,0">
+                                        <TextBlock Text="-15%" FontSize="12" Foreground="White" FontWeight="Bold"/>
+                                    </Border>
+                                    <TextBlock Text="255.500₫" FontSize="12" Foreground="White" 
+                                        TextDecorations="Strikethrough" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock x:Name="TextProductPrice" Text="74.500₫" FontSize="16" Foreground="White" FontWeight="Bold" 
+                                    HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Add to Cart Button -->
+                        <Button x:Name="BtnAddToCart" Content="Add to Cart" Background="#4c6b22" Foreground="White" 
+                            BorderThickness="0" Padding="0,12" Margin="0,10,0,0" 
+                            FontSize="14" FontWeight="Bold" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="{x:Type Button}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type Button}">
+                                                <Border Background="{TemplateBinding Background}" 
+                                                    CornerRadius="3" Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#5c7836"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <controls:ResizeableBorderUserControl Grid.RowSpan="3" Margin="0,0,7,0" d:IsHidden="True" Grid.ColumnSpan="2"/>
         </Grid>
     </Border>
 </Window>

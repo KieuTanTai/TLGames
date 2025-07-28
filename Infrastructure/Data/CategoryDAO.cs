@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Enums;
@@ -13,7 +14,7 @@ namespace TLGames.Infrastructure.Data
 {
     public class CategoryDAO(IDbConnectionFactory connectionFactory, IColumnService colService, IStringConverter converter, IStringChecker checker)
         : BaseDAO<CategoryModel>(connectionFactory, colService, converter, checker, "categories", "category_id", null),
-        IGetRelativeAsync<CategoryModel>, ISoftDeleteAsync<CategoryModel>, IGetDataByEnum<CategoryModel>
+        IGetRelativeAsync<CategoryModel>, IGetDataByEnumAsync<CategoryModel>
     {
         public async Task<List<CategoryModel>> GetRelativeAsync(string input, string colName)
         {
@@ -33,32 +34,59 @@ namespace TLGames.Infrastructure.Data
             }
         }
 
-        public async Task<bool> SoftDeleteAsync(CategoryModel entity)
+        protected override string DeleteByIdQuery(string colIdName)
         {
-            return await UpdateAsync(entity);
+            return ""; // Soft delete is handled in DeleteAsync 
+        }
+
+        public async override Task<int> DeleteAsync(string id)
+        {
+            CategoryModel category = await GetByIdAsync(id);
+            if (category == null)
+                return -1;
+            category.SetStatus(EActiveStatus.INACTIVE);
+            return await UpdateAsync(category);
+        }
+
+        public override async Task<int> DeleteManyAsync(IEnumerable<string> ids)
+        {
+            if (ids == null || !ids.Any())
+                return -1;
+
+            List<CategoryModel> categoriesToUpdate = new List<CategoryModel>();
+
+            foreach (string id in ids)
+            {
+                CategoryModel category = await GetByIdAsync(id);
+                if (category == null)
+                    return -1;
+                category.SetStatus(EActiveStatus.INACTIVE);
+                categoriesToUpdate.Add(category);
+            }
+            return await UpdateManyAsync(categoriesToUpdate);
         }
 
         protected override string GetInsertQuery()
         {
-            return $"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}(category_name, status) VALUES (@CategoryName, @Status)";
+            return $"INSERT INTO {TableName}(category_name, status) VALUES (@CategoryName, @Status)";
         }
 
         public string GetQueryDataString(string colName)
         {
             if (!ColService.IsValidColumn(TableName, colName))
                 return "";
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {colName} LIKE @Input";
+            return $"SELECT * FROM {TableName} WHERE {colName} LIKE @Input";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"UPDATE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} 
+            return $@"UPDATE FROM {TableName} 
                         SET category_name=@CategoryName, status = @Status
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}=@{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
+                        WHERE {ColumnIdName}=@{Converter.SnakeCaseToPascalCase(ColumnIdName)}";
         }
 
         // search by enum
-        public async Task<List<CategoryModel>> GetAllByEnum<TEnum>(TEnum value, string colName) where TEnum : Enum
+        public async Task<List<CategoryModel>> IGetAllByEnumAsync<TEnum>(TEnum value, string colName) where TEnum : Enum
         {
             if (value is EActiveStatus)
             {

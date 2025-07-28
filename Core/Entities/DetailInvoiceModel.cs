@@ -8,11 +8,11 @@ namespace TLGames.Core.Entities
         public int ProductId { get; private set; }
         public int Quantity { get; private set; }
         public decimal Price { get; private set; }
-        public EDetailStatusInvoice Status { get; private set; }
+        public EInvoiceStatus Status { get; private set; }
 
         public DetailInvoiceModel() { }
 
-        public DetailInvoiceModel(int invoiceId, int productId, int quantity, decimal price, EDetailStatusInvoice status)
+        public DetailInvoiceModel(int invoiceId, int productId, int quantity, decimal price, EInvoiceStatus status)
         {
             InvoiceId = invoiceId;
             ProductId = productId;
@@ -25,6 +25,6 @@ namespace TLGames.Core.Entities
         public void SetProductId(int id) { ProductId = id; }
         public void SetQuantity(int quantity) { Quantity = quantity; }
         public void SetPrice(decimal price) { Price = price; }
-        public void SetStatus(EDetailStatusInvoice status) { Status = status; }
+        public void SetStatus(EInvoiceStatus status) { Status = status; }
     }
 }

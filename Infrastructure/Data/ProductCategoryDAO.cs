@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using TLGames.Core.Entities;
 using TLGames.Core.Interfaces.IData;
@@ -18,33 +17,33 @@ namespace TLGames.Infrastructure.Data
     {
         protected override string GetInsertQuery()
         {
-            return $@"INSERT INTO {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} ({(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))}, {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))}) 
+            return $@"INSERT INTO {TableName} ({ColumnIdName}, {SecondColumnIdName}) 
                         VALUES(@{Converter.SnakeCaseToPascalCase(ColumnIdName)},
                         @{Converter.SnakeCaseToPascalCase(ColumnIdName)}); SELECT LAST_INSERT_ID();";
         }
 
         protected override string GetUpdateQuery()
         {
-            return $@"";
+            return $@""; // No update query needed for this DAO, as it uses GetUpdateWithOldKeyString
         }
 
         public string GetUpdateWithOldKeyString()
         {
-            return $@"UPDATE {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))}
-                        SET {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}
-                        WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}
-                        AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @OldId";
+            return $@"UPDATE {TableName}
+                        SET {SecondColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}
+                        WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)}
+                        AND {SecondColumnIdName} = @OldId";
         }
         public string GetDeleteQuery()
         {
-            return $"DELETE FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)} " +
-                    $"AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = @{Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"DELETE FROM {TableName} WHERE {ColumnIdName} = @{Converter.SnakeCaseToPascalCase(ColumnIdName)} " +
+                    $"AND {SecondColumnIdName} = @{Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         public string GetSingleDataString()
         {
-            return $"SELECT * FROM {(IsValidStringInputDB(TableName) ? TableName : throw new ArgumentException("error Input"))} WHERE {(IsValidStringInputDB(ColumnIdName) ? ColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(ColumnIdName)} " +
-                    $"AND {(IsValidStringInputDB(SecondColumnIdName) ? SecondColumnIdName : throw new ArgumentException("error Input"))} = {Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
+            return $"SELECT * FROM {TableName} WHERE {ColumnIdName} = {Converter.SnakeCaseToPascalCase(ColumnIdName)} " +
+                    $"AND {SecondColumnIdName} = {Converter.SnakeCaseToPascalCase(SecondColumnIdName)}";
         }
 
         public async Task<List<ProductCategoryModel>> GetAllByIdAsync(string id, string colIdName)
@@ -83,7 +82,7 @@ namespace TLGames.Infrastructure.Data
             return null;
         }
 
-        public async Task<bool> DeleteByIdsAsync(object keys)
+        public async Task<int> DeleteByIdsAsync(object keys)
         {
             try
             {
@@ -94,23 +93,33 @@ namespace TLGames.Infrastructure.Data
                 {
                     int affectRow = await connection.ExecuteAsync(query, keys, transaction);
                     transaction.Commit();
-                    return affectRow > 0;
+                    return affectRow;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error Commit!\n{ex.StackTrace}");
                     transaction.Rollback();
-                    return false;
+                    return -1;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
-                return false;
+                return -1;
             }
         }
 
-        public async Task<bool> UpdateAsync(ProductCategoryModel entity, string oldKey)
+        public override Task<int> UpdateAsync(ProductCategoryModel entity)
+        {
+            return Task.FromResult(-1); // Soft delete is handled in SoftDeleteAsync
+        }
+
+        public override Task<int> UpdateManyAsync(IEnumerable<ProductCategoryModel> entities)
+        {
+            return Task.FromResult(-1); // Soft delete is handled in SoftDeleteAsync
+        }
+
+        public async Task<int> UpdateAsync(ProductCategoryModel entity, string oldKey)
         {
             try
             {
@@ -121,60 +130,60 @@ namespace TLGames.Infrastructure.Data
                     int affectRow = await connection.ExecuteAsync(GetUpdateWithOldKeyString(),
                         new { entity, OldId = oldKey }, transaction);
                     transaction.Commit();
-                    return affectRow > 0;
+                    return affectRow;
 
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error Commit!\n{ex.StackTrace}");
                     transaction.Rollback();
-                    return false;
+                    return -1;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
-                return false;
+                return -1;
             }
         }
 
-        public async Task<bool> UpdateAsync(IEnumerable<ProductCategoryModel> productCategoryModels, IEnumerable<string> oldKeys)
+        //return row affect in the database
+        public async Task<int> UpdateAsync(IEnumerable<ProductCategoryModel> entities, string oldKey)
         {
-            if (productCategoryModels == null || !productCategoryModels.Any())
-                throw new ArgumentNullException("Product categories cannot be null or empty.");
-            if (oldKeys == null || !oldKeys.Any())
-                throw new ArgumentNullException("Old keys cannot be null or empty.");
-            if (productCategoryModels.Count() != oldKeys.Count())
-                throw new ArgumentException("Product categories and old keys must have the same count.");
+            if (entities == null)
+                return 0;
+
+            int totalAffectedRows = 0;
             try
             {
                 using IDbConnection connection = connectionFactory.CreateConnection();
                 using IDbTransaction transaction = connection.BeginTransaction();
                 try
                 {
-                    int affectRow = 0;
-                    int length = productCategoryModels.Count();
-                    for (int i = 0; i < length; i++)
+                    string updateQuery = GetUpdateWithOldKeyString();
+                    foreach (ProductCategoryModel entity in entities)
                     {
-                        ProductCategoryModel model = productCategoryModels.ElementAt(i);
-                        string oldKey = oldKeys.ElementAt(i);
-                        affectRow += await connection.ExecuteAsync(GetUpdateWithOldKeyString(),
-                            new { model, OldId = oldKey }, transaction);
+                        int affected = await connection.ExecuteAsync(
+                            updateQuery,
+                            new { entity.ProductId, entity.CategoryId, OldId = oldKey },
+                            transaction
+                        );
+                        totalAffectedRows += affected;
                     }
                     transaction.Commit();
-                    return affectRow > 0;
+                    return totalAffectedRows;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error Commit!\n{ex.StackTrace}");
                     transaction.Rollback();
-                    return false;
+                    return -1;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.StackTrace);
-                return false;
+                return -1;
             }
         }
     }

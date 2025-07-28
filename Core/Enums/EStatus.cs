@@ -39,17 +39,11 @@
         AMOUNT
     }
 
-    public enum EStatusInvoice
+    public enum EInvoiceStatus
     {
         RETURN,
         SUCCESS,
-        CANCEl
-    }
-
-    public enum EDetailStatusInvoice
-    {
-        RETURN,
-        SUCCESS,
+        CANCEL
     }
 
     public enum ETransactionType

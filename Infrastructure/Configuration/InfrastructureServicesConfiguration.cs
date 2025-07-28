@@ -31,8 +31,8 @@ namespace TLGames.Infrastructure.Configuration
 
             services.AddTransient<IDAO<CategoryModel>, CategoryDAO>();
             services.AddTransient<IGetRelativeAsync<CategoryModel>, CategoryDAO>();
-            services.AddTransient<ISoftDeleteAsync<CategoryModel>, CategoryDAO>();
-            services.AddTransient<IGetDataByEnum<CategoryModel>, CategoryDAO>();
+            //services.AddTransient<ISoftDeleteAsync<CategoryModel>, CategoryDAO>();
+            services.AddTransient<IGetDataByEnumAsync<CategoryModel>, CategoryDAO>();
 
             // NOTE: ProductCategoryDAO is used for managing product categories, which are linked to categories.
             services.AddTransient<IDAO<ProductCategoryModel>, ProductCategoryDAO>();
